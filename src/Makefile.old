@@ -1,0 +1,33 @@
+
+CFLAGS = -O2 -Wall -std=c++11
+OPENCV_LIBS = `pkg-config --cflags --libs opencv`
+X_LIBS = `pkg-config --cflags --libs x11`
+GL_LIBS = `pkg-config --cflags --libs glesv2 egl`
+DEBUG =
+
+objects = acrossroadsegment.o camera.o command.o dashedline1segment.o dashedline2segment.o differentialroadfinder.o doubleturnsegment.o doubleturnleftsegment.o doubleturnrightsegment.o framecapture.o gpiomotors.o linefollowerapp.o main.o motors.o narrowsegment.o narrowwidesegment.o options.o pilot.o realcamera.o road.o squaresegment.o ssfapathfinder.o straightsegment.o tracksegment.o turnleftsegment.o turnrightsegment.o turnsegment.o utilities.o vcrossroadsegment.o virtualcamera.o virtualmotors.o virtualtrack.o widenarrowsegment.o zigzaglinesegment.o
+
+tests_bins = test_realcamera test_virtualcamera test_virtualtrack
+
+follow: $(objects)
+	g++ $^ -o $@ $(X_LIBS) $(GL_LIBS) $(OPENCV_LIBS)
+
+%.o: %.cpp
+	g++ $(CFLAGS) $(DEBUG) -c -o $@ $<
+
+test_virtualtrack: straightsegment.o test_virtualtrack.o tracksegment.o turnleftsegment.o utilities.o virtualtrack.o
+	g++ $^ -o $@ $(X_LIBS) $(GL_LIBS) $(OPENCV_LIBS)
+
+test_virtualcamera: camera.o straightsegment.o test_virtualcamera.o tracksegment.o turnleftsegment.o utilities.o virtualcamera.o virtualtrack.o
+	g++ $^ -o $@ $(X_LIBS) $(GL_LIBS) $(OPENCV_LIBS)
+
+test_realcamera: camera.o realcamera.o test_realcamera.o
+	g++ $^ -o $@ $(OPENCV_LIBS)
+
+tests: $(tests_bins)
+
+.PHONY: clean
+
+clean:
+	rm *.o follow $(tests_bins)
+

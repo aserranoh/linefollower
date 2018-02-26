@@ -1,0 +1,9 @@
+Makefile
+*.o
+config.log
+follow
+linefollower-0.1.tar.gz
+config.h
+config.status
+.deps
+stamp-h1
