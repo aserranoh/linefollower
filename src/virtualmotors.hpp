@@ -51,7 +51,7 @@ class VirtualMotors: public Motors {
         float max_speed;
 
         // Time in previous invocation (used to calculate the distance to move)
-        struct timeval t_prev;
+        struct timespec t_prev;
 
 };
 

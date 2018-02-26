@@ -10,7 +10,10 @@
 
 #define MIN_TURN    0.001
 
-// TODO: Don't use gettimeofday
+// Transform an element of struct timespec to a double. Converting the struct
+// timespec to a double is useful to substract them and calculate time deltas.
+#define TS_TO_DOUBLE(ts)    ((double)ts.tv_sec \
+                            + (double)(ts.tv_nsec)/1000000000.0)
 
 using namespace utilities;
 
@@ -39,16 +42,17 @@ VirtualMotors::~VirtualMotors()
 void
 VirtualMotors::move(float speed, float turn)
 {
-    struct timeval t_current;
-    float dt;
+    struct timespec t_current;
+    float dt, t0, t1;
     float s1, s2;
     float radius, angle;
     glm::vec3 position, orientation, normal, center;
 
     // Compute the elapsed time
-    gettimeofday(&t_current, 0);
-    dt = (float)(t_current.tv_sec - t_prev.tv_sec
-        + (t_current.tv_usec - t_prev.tv_usec) * 1e-6);
+    clock_gettime(CLOCK_MONOTONIC, &t_current);
+    t0 = TS_TO_DOUBLE(t_prev);
+    t1 = TS_TO_DOUBLE(t_current);
+    dt = t1 - t0;
     t_prev = t_current;
 
     // Compute the speeds for each wheel and the mean speed
@@ -90,7 +94,7 @@ VirtualMotors::move(float speed, float turn)
 void
 VirtualMotors::start()
 {
-    gettimeofday(&t_prev, 0);
+    clock_gettime(CLOCK_MONOTONIC, &t_prev);
 }
 
 // Stop the motors

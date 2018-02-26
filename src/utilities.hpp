@@ -55,20 +55,6 @@ namespace utilities {
     */
     void printfps(unsigned int nframes);
 
-    /* Read a value from a file.
-       Parameters:
-         * file: path to the file to read from.
-         * value: contains the read string.
-    */
-    void readfile(const string& file, string& value);
-
-    /* Write a value to a file.
-       Parameters:
-         * file: path to the file to write to.
-         * value: string to write.
-    */
-    void writefile(const string& file, const string& value);
-
 }
 
 #endif

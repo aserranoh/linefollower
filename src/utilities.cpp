@@ -16,12 +16,13 @@
 
 #define MAX_STATIC_READ     1024
 
-// TODO: Don't use gettimeofday
-// TODO: remove writefile
-// TODO: remove readfile
+// Transform an element of struct timespec to a double. Converting the struct
+// timespec to a double is useful to substract them and calculate time deltas.
+#define TS_TO_DOUBLE(ts)    ((double)ts.tv_sec \
+                            + (double)(ts.tv_nsec)/1000000000.0)
 
 // Variables to calculate the fps
-static struct timeval t_prev = {0, 0}, t_current;
+static struct timespec t_prev = {0, 0}, t_current;
 static float total_time = 0.0;
 static unsigned int frames = 0;
 
@@ -218,16 +219,17 @@ utilities::plot(int *x, size_t size, int scaley, Mat& plt)
 void
 utilities::printfps(unsigned int nframes)
 {
-    float deltatime;
+    float deltatime, t0, t1;
 
     if (t_prev.tv_sec == 0) {
         // The first time just get t_prev and don't count any frames
-        gettimeofday(&t_prev, 0);
+        clock_gettime(CLOCK_MONOTONIC, &t_prev);
     } else {
         // Compute the elapsed time and increment the frames counter
-        gettimeofday(&t_current, 0);
-        deltatime = (float)(t_current.tv_sec - t_prev.tv_sec
-            + (t_current.tv_usec - t_prev.tv_usec) * 1e-6);
+        clock_gettime(CLOCK_MONOTONIC, &t_current);
+        t0 = TS_TO_DOUBLE(t_prev);
+        t1 = TS_TO_DOUBLE(t_current);
+        deltatime = t1 - t0;
         t_prev = t_current;
         total_time += deltatime;
         frames++;
@@ -239,56 +241,5 @@ utilities::printfps(unsigned int nframes)
             frames = 0;
         }
     }
-}
-
-/* Read a value from a file.
-   Parameters:
-     * file: path to the file to read from.
-     * value: contains the read string.
-*/
-void
-utilities::readfile(const string& file, string& value)
-{
-    int fd, e, r;
-    char buffer[MAX_STATIC_READ];
-
-    fd = open(file.c_str(), O_RDONLY);
-    if (fd < 0) {
-        throw FollowException(
-            string("error opening ") + file + ": " + strerror(errno));
-    }
-    if ((r = read(fd, buffer, MAX_STATIC_READ)) < 0) {
-        e = errno;
-        close(fd);
-        throw FollowException(
-            string("error reading from ") + file + ": " + strerror(e));
-    }
-    buffer[r] = '\0';
-    value = buffer;
-    close(fd);
-}
-
-/* Write a value to a file.
-   Parameters:
-     * file: path to the file to write to.
-     * value: string to write.
-*/
-void
-utilities::writefile(const string& file, const string& value)
-{
-    int fd, e;
-
-    fd = open(file.c_str(), O_WRONLY);
-    if (fd < 0) {
-        throw FollowException(
-            string("error opening ") + file + ": " + strerror(errno));
-    }
-    if (write(fd, value.c_str(), value.length()) < 0) {
-        e = errno;
-        close(fd);
-        throw FollowException(string("error writing '") + value + "' to " + file
-            + ": " + strerror(e));
-    }
-    close(fd);
 }
 
