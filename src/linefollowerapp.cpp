@@ -30,8 +30,8 @@
 
 #define NS_PER_SECOND   1000000000
 
-#define MIN_CAMANGLE    -90.0
-#define MAX_CAMANGLE    0.0
+#define MIN_CAMANGLE    0.0
+#define MAX_CAMANGLE    90.0
 
 #define ROAD_SCALE  4
 #define X_TO_SCR(x) (x * ROAD_SCALE + cam_params.width/2)

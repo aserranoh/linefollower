@@ -403,10 +403,10 @@ DifferentialRoadFinder::init_scanline_params(scanline_frame_t scanline_frame,
     float scanline_distance)
 {
     int row_offset = cam_params.height - 1;
-    float tan_cam_angle = tan(-cam_params.cam_angle);
+    float tan_cam_angle = tan(cam_params.cam_angle);
     float kv = tan(DEG_TO_RAD(cam_params.fovv/2.0)) / (cam_params.height/2.0);
     float ymin = cam_params.cam_z
-        / tan(-cam_params.cam_angle + DEG_TO_RAD(cam_params.fovv/2.0));
+        / tan(cam_params.cam_angle + DEG_TO_RAD(cam_params.fovv/2.0));
     float tan_phi, dc;
 
     // Allocate the scanline params array
@@ -448,8 +448,8 @@ DifferentialRoadFinder::init_scanline_params(scanline_frame_t scanline_frame,
         // derived from the formula to compute the distance between a plane and
         // a point.
         // https://mathinsight.org/distance_point_plane
-        dc = fabsf(sin(-cam_params.cam_angle)*cam_params.cam_z
-            + cos(-cam_params.cam_angle)*scanline_params[i].y);
+        dc = fabsf(sin(cam_params.cam_angle)*cam_params.cam_z
+            + cos(cam_params.cam_angle)*scanline_params[i].y);
         scanline_params[i].kx = tan(DEG_TO_RAD(cam_params.fovh/2.0)) * dc
             / (cam_params.width/2.0);
     }

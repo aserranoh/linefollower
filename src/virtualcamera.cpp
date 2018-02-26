@@ -74,9 +74,9 @@ VirtualCamera::fetch()
     // The camera orientation is obtained rotating the orientation vector the
     // camera angle through the orientation x normal vector
     // Beware, rotate needs the angle in radians
-    glm::vec3 vx = glm::cross(orientation, normal);
+    glm::vec3 vx = glm::cross(normal, orientation);
     glm::vec3 o = glm::rotate(orientation, (float)(cam_params.cam_angle), vx);
-    track->set_view(eye, eye + o, cross(vx, o));
+    track->set_view(eye, eye + o, cross(o, vx));
 
     // Clear the color and depth buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
