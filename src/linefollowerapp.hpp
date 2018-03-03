@@ -40,8 +40,9 @@ class LineFollowerApp {
         // Application options
         Options options;
 
-        // The camera parameters
-        cam_params_t cam_params;
+        // The frame dimensions
+        size_t frame_width;
+        size_t frame_height;
 
         // The frame capture object
         FrameCapture capture;
@@ -79,10 +80,10 @@ class LineFollowerApp {
         // Flag that tells if there's display or not
         bool has_display;
 
-        // PRIVATE METHODS
+        // Default option values
+        static const char* options_default[];
 
-        // Create the frame capture instance
-        void create_frame_capture();
+        // PRIVATE METHODS
 
         // Create the motors
         void create_motors();
@@ -113,12 +114,6 @@ class LineFollowerApp {
 
         // Process the current frame
         void processing(Mat& frame);
-
-        /* Set the default options.
-           Parameters:
-             * defaults: map where to put the default options.
-        */
-        void set_default_options(map<string, string>& defaults);
 
         // Start the motors (switch to autonomous mode)
         void start_motors();

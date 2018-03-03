@@ -24,8 +24,8 @@ class VirtualMotors: public Motors {
              * wheel_distance: distance between wheels (in cm).
              * wheel_diameter: diameter of the wheels (in cm).
         */
-        VirtualMotors(VirtualCamera *camera, float max_speed,
-            float wheel_distance, float wheel_diameter);
+        VirtualMotors(Camera *camera, float max_speed, float wheel_distance,
+            float wheel_diameter);
 
         virtual ~VirtualMotors();
 

@@ -23,3 +23,9 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Define if using GLES2 */
+#undef WITH_GLES2
+
+/* Define if using GTK */
+#undef WITH_GTK

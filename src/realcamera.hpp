@@ -9,6 +9,7 @@
 #include "opencv2/opencv.hpp"
 
 #include "camera.hpp"
+#include "options.hpp"
 
 using namespace cv;
 
@@ -24,7 +25,7 @@ class RealCamera: public Camera {
 
     public:
 
-        RealCamera();
+        RealCamera(const Options& options);
         virtual ~RealCamera();
 
         // Fetch the next frame

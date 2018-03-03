@@ -7,7 +7,10 @@ textures = carpet.data road_across.data road_dashed1.data road_dashed2.data \
 # Shaders for GLES2
 shaders = fragment.sl vertex.sl
 
+if GLES2
 dist_data_DATA = $(textures) $(shaders)
+endif
 
 # Configuration file
 dist_sysconf_DATA = follow.conf
+

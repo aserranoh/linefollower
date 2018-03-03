@@ -7,3 +7,4 @@ config.h
 config.status
 .deps
 stamp-h1
+*~

@@ -17,12 +17,14 @@
 
 /* Constructor.
    Parameters:
-     * segments: description of the virtual track's segments.
-     * cam_params: camera's parameters.
+     * options: application's options.
 */
-VirtualCamera::VirtualCamera(const vector<segment_t>& segments,
-        const cam_params_t& cam_params):
-    Camera(), cam_params(cam_params),
+VirtualCamera::VirtualCamera(const Options& options):
+    Camera(),
+    cam_params(options.get_int("CameraWidth"), options.get_int("CameraHeight"),
+        options.get_float("CameraFovh"), options.get_float("CameraFovv"),
+        options.get_float("CameraZ"),
+        options.get_float("CameraAngle") * M_PI / 180.0),
     front_buffer(cam_params.height, cam_params.width, CV_8UC4),
     back_buffer(cam_params.height, cam_params.width, CV_8UC4)
 {
@@ -38,7 +40,7 @@ VirtualCamera::VirtualCamera(const vector<segment_t>& segments,
     init_gl();
 
     // Initialize the track
-    track = new VirtualTrack(segments);
+    track = new VirtualTrack(options);
 
     // Initialize camera position
     track->get_start_position(position, orientation, normal);

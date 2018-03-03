@@ -13,6 +13,7 @@
 
 #include "camera.hpp"
 #include "camparams.hpp"
+#include "options.hpp"
 #include "virtualtrack.hpp"
 
 class VirtualCamera: public Camera {
@@ -21,11 +22,9 @@ class VirtualCamera: public Camera {
 
         /* Constructor.
            Parameters:
-             * segments: description of the virtual track's segments.
-             * cam_params: camera's parameters.
+             * options: application's options.
         */
-        VirtualCamera(
-            const vector<segment_t>& segments, const cam_params_t& cam_params);
+        VirtualCamera(const Options& options);
 
         ~VirtualCamera();
 

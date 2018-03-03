@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "gl.hpp"
+#include "options.hpp"
 #include "tracksegment.hpp"
 
 using namespace std;
@@ -29,6 +30,13 @@ typedef enum {
     SEGMENT_DOUBLETURNLEFT,
     SEGMENT_DOUBLETURNRIGHT
 } segment_type_t;
+
+// Type that relates the string identifier of a virtual track segment type with
+// its enumeration
+typedef struct {
+    segment_type_t type;
+    const char *str_id;
+} segment_id_t;
 
 // Information about the segments
 typedef struct {
@@ -60,7 +68,7 @@ class VirtualTrack {
              * segments: sequence of segments to build the track. The last one
                          must be SEGMENT_NULL.
         */
-        VirtualTrack(const vector<segment_t>& segments);
+        VirtualTrack(const Options& options);
 
         // Destructor
         ~VirtualTrack();
@@ -142,16 +150,20 @@ class VirtualTrack {
         void init_gl_lights();
 
         // Initialize OpenGL shader program.
-        void init_gl_program();
+        void init_gl_program(const Options& options);
 
         // Initialize textures
-        void init_gl_textures();
+        void init_gl_textures(const Options& options);
 
         // Build the track segments.
-        void init_segments(const vector<segment_t>& segments);
+        void init_segments(const Options& options);
 
         // Define the segments geometry.
         void init_segments_geometry();
+
+        // Load a track file (for the virtual camera)
+        void load_track_file(
+            const string& track_file, vector<segment_t>& segments);
 
         // The track segments
         vector<TrackSegment *> segments;
@@ -170,8 +182,11 @@ class VirtualTrack {
         glm::vec3 bs_center;
         float bs_radius;
 
+        // Relates segment strings IDs with their enumerations
+        static const segment_id_t segments_ids[];
+
         // Texture info
-        const static texture_info_t texture_info[];
+        static const texture_info_t texture_info[];
 };
 
 #endif

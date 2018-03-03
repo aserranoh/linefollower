@@ -3,6 +3,7 @@
 #define DIFFERENTIALROADFINDER_HPP
 
 #include "camparams.hpp"
+#include "options.hpp"
 #include "roadfinder.hpp"
 
 // Enumeration for the segment's colors
@@ -42,23 +43,9 @@ class DifferentialRoadFinder: public RoadFinder {
 
         /* Constructor.
            Parameters:
-             * cam_params: camera's parameters.
-             * scanlines: number of lines of the original image to process.
-             * min_derivative: value to use to filter the values in the
-                   derivative function.
-             * color_distance_threshold: color distance threshold, used to
-                   identify white and black colors.
-             * scanline_frame: SL_SCREEN, to use scanlines equidistant in
-                   screen coordinates or SL_WORLD, to use scanlines
-                   equidistant in world coordinates.
-             * scanline_distance: if using the SL_WORLD frame, distance between
-                   the scanlines.
-             * wheel_distance: distance between wheels (in cm).
+             * options: application's options.
         */
-        DifferentialRoadFinder(const cam_params_t& cam_params,
-            size_t scanlines, int min_derivative, int color_distance_threshold,
-            scanline_frame_t scanline_frame, float scanline_distance,
-            float wheel_distance);
+        DifferentialRoadFinder(const Options& options);
 
         ~DifferentialRoadFinder();
 

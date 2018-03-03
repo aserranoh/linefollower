@@ -88,13 +88,16 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = follow$(EXEEXT)
+@GLES2_TRUE@am__append_1 = $(virtual_camera_SOURCES)
+@GLES2_TRUE@am__append_2 = ${glesv2_CFLAGS} ${egl_CFLAGS} ${x11_CFLAGS}
+@GLES2_TRUE@am__append_3 = ${glesv2_LIBS} ${egl_LIBS} ${x11_LIBS}
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-DIST_COMMON = $(srcdir)/Makefile.am $(dist_bin_SCRIPTS) \
-	$(python_PYTHON) $(am__DIST_COMMON)
+DIST_COMMON = $(srcdir)/Makefile.am $(am__dist_bin_SCRIPTS_DIST) \
+	$(am__python_PYTHON_DIST) $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
@@ -102,27 +105,55 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(pythondir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_follow_OBJECTS = acrossroadsegment.$(OBJEXT) camera.$(OBJEXT) \
-	command.$(OBJEXT) dashedline1segment.$(OBJEXT) \
-	dashedline2segment.$(OBJEXT) differentialroadfinder.$(OBJEXT) \
+am__follow_SOURCES_DIST = camera.cpp camera.hpp camparams.hpp \
+	command.cpp command.hpp differentialroadfinder.cpp \
+	differentialroadfinder.hpp followexception.hpp \
+	framecapture.cpp framecapture.hpp gpiomotors.cpp \
+	gpiomotors.hpp linefollowerapp.cpp linefollowerapp.hpp \
+	main.cpp motors.cpp motors.hpp options.cpp options.hpp \
+	pathfinder.hpp pilot.cpp pilot.hpp realcamera.cpp \
+	realcamera.hpp road.cpp roadfinder.hpp road.hpp \
+	ssfapathfinder.cpp ssfapathfinder.hpp utilities.cpp \
+	utilities.hpp acrossroadsegment.cpp acrossroadsegment.hpp \
+	dashedline1segment.cpp dashedline1segment.hpp \
+	dashedline2segment.cpp dashedline2segment.hpp \
+	doubleturnleftsegment.cpp doubleturnleftsegment.hpp \
+	doubleturnrightsegment.cpp doubleturnrightsegment.hpp \
+	doubleturnsegment.cpp doubleturnsegment.hpp gl.hpp \
+	narrowsegment.cpp narrowsegment.hpp narrowwidesegment.cpp \
+	narrowwidesegment.hpp squaresegment.cpp squaresegment.hpp \
+	straightsegment.cpp straightsegment.hpp tracksegment.cpp \
+	tracksegment.hpp turnleftsegment.cpp turnleftsegment.hpp \
+	turnrightsegment.cpp turnrightsegment.hpp turnsegment.cpp \
+	turnsegment.hpp vcrossroadsegment.cpp vcrossroadsegment.hpp \
+	virtualcamera.cpp virtualcamera.hpp virtualmotors.cpp \
+	virtualmotors.hpp virtualtrack.cpp virtualtrack.hpp \
+	widenarrowsegment.cpp widenarrowsegment.hpp \
+	zigzaglinesegment.cpp zigzaglinesegment.hpp
+am__objects_1 = acrossroadsegment.$(OBJEXT) \
+	dashedline1segment.$(OBJEXT) dashedline2segment.$(OBJEXT) \
 	doubleturnleftsegment.$(OBJEXT) \
 	doubleturnrightsegment.$(OBJEXT) doubleturnsegment.$(OBJEXT) \
-	framecapture.$(OBJEXT) gpiomotors.$(OBJEXT) \
-	linefollowerapp.$(OBJEXT) main.$(OBJEXT) motors.$(OBJEXT) \
 	narrowsegment.$(OBJEXT) narrowwidesegment.$(OBJEXT) \
-	options.$(OBJEXT) pilot.$(OBJEXT) realcamera.$(OBJEXT) \
-	road.$(OBJEXT) squaresegment.$(OBJEXT) \
-	ssfapathfinder.$(OBJEXT) straightsegment.$(OBJEXT) \
+	squaresegment.$(OBJEXT) straightsegment.$(OBJEXT) \
 	tracksegment.$(OBJEXT) turnleftsegment.$(OBJEXT) \
 	turnrightsegment.$(OBJEXT) turnsegment.$(OBJEXT) \
-	utilities.$(OBJEXT) vcrossroadsegment.$(OBJEXT) \
-	virtualcamera.$(OBJEXT) virtualmotors.$(OBJEXT) \
-	virtualtrack.$(OBJEXT) widenarrowsegment.$(OBJEXT) \
-	zigzaglinesegment.$(OBJEXT)
+	vcrossroadsegment.$(OBJEXT) virtualcamera.$(OBJEXT) \
+	virtualmotors.$(OBJEXT) virtualtrack.$(OBJEXT) \
+	widenarrowsegment.$(OBJEXT) zigzaglinesegment.$(OBJEXT)
+@GLES2_TRUE@am__objects_2 = $(am__objects_1)
+am_follow_OBJECTS = camera.$(OBJEXT) command.$(OBJEXT) \
+	differentialroadfinder.$(OBJEXT) framecapture.$(OBJEXT) \
+	gpiomotors.$(OBJEXT) linefollowerapp.$(OBJEXT) main.$(OBJEXT) \
+	motors.$(OBJEXT) options.$(OBJEXT) pilot.$(OBJEXT) \
+	realcamera.$(OBJEXT) road.$(OBJEXT) ssfapathfinder.$(OBJEXT) \
+	utilities.$(OBJEXT) $(am__objects_2)
 follow_OBJECTS = $(am_follow_OBJECTS)
 am__DEPENDENCIES_1 =
-follow_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+@GLES2_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) \
+@GLES2_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+follow_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+am__dist_bin_SCRIPTS_DIST = follow-monitor.py
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -193,12 +224,13 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(follow_SOURCES)
-DIST_SOURCES = $(follow_SOURCES)
+DIST_SOURCES = $(am__follow_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__python_PYTHON_DIST = follow.py
 am__py_compile = PYTHON=$(PYTHON) $(SHELL) $(py_compile)
 am__pep3147_tweak = \
   sed -e 's|\.py$$||' -e 's|[^/]*$$|__pycache__/&.*.py|'
@@ -298,6 +330,8 @@ egl_LIBS = @egl_LIBS@
 exec_prefix = @exec_prefix@
 glesv2_CFLAGS = @glesv2_CFLAGS@
 glesv2_LIBS = @glesv2_LIBS@
+gtk_CFLAGS = @gtk_CFLAGS@
+gtk_LIBS = @gtk_LIBS@
 host_alias = @host_alias@
 htmldir = @htmldir@
 includedir = @includedir@
@@ -330,37 +364,35 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 x11_CFLAGS = @x11_CFLAGS@
 x11_LIBS = @x11_LIBS@
-follow_SOURCES = acrossroadsegment.cpp acrossroadsegment.hpp camera.cpp \
-                 camera.hpp camparams.hpp command.cpp command.hpp \
-                 dashedline1segment.cpp dashedline1segment.hpp \
-                 dashedline2segment.cpp dashedline2segment.hpp \
-                 differentialroadfinder.cpp differentialroadfinder.hpp \
-                 doubleturnleftsegment.cpp doubleturnleftsegment.hpp \
-                 doubleturnrightsegment.cpp doubleturnrightsegment.hpp \
-                 doubleturnsegment.cpp doubleturnsegment.hpp \
-                 followexception.hpp framecapture.cpp framecapture.hpp \
-                 gl.hpp gpiomotors.cpp gpiomotors.hpp linefollowerapp.cpp \
-                 linefollowerapp.hpp main.cpp motors.cpp motors.hpp \
-                 narrowsegment.cpp narrowsegment.hpp narrowwidesegment.cpp \
-                 narrowwidesegment.hpp options.cpp options.hpp pathfinder.hpp \
-                 pilot.cpp pilot.hpp realcamera.cpp realcamera.hpp road.cpp \
-                 roadfinder.hpp road.hpp squaresegment.cpp squaresegment.hpp \
-                 ssfapathfinder.cpp ssfapathfinder.hpp straightsegment.cpp \
-                 straightsegment.hpp tracksegment.cpp tracksegment.hpp \
-                 turnleftsegment.cpp turnleftsegment.hpp turnrightsegment.cpp \
-                 turnrightsegment.hpp turnsegment.cpp turnsegment.hpp \
-                 utilities.cpp utilities.hpp vcrossroadsegment.cpp \
-                 vcrossroadsegment.hpp virtualcamera.cpp virtualcamera.hpp \
-                 virtualmotors.cpp virtualmotors.hpp virtualtrack.cpp \
-                 virtualtrack.hpp widenarrowsegment.cpp widenarrowsegment.hpp \
-                 zigzaglinesegment.cpp zigzaglinesegment.hpp
+virtual_camera_SOURCES = acrossroadsegment.cpp acrossroadsegment.hpp \
+    dashedline1segment.cpp dashedline1segment.hpp dashedline2segment.cpp \
+    dashedline2segment.hpp doubleturnleftsegment.cpp doubleturnleftsegment.hpp\
+    doubleturnrightsegment.cpp doubleturnrightsegment.hpp \
+    doubleturnsegment.cpp doubleturnsegment.hpp gl.hpp narrowsegment.cpp \
+    narrowsegment.hpp narrowwidesegment.cpp narrowwidesegment.hpp \
+    squaresegment.cpp squaresegment.hpp straightsegment.cpp \
+    straightsegment.hpp tracksegment.cpp tracksegment.hpp turnleftsegment.cpp \
+    turnleftsegment.hpp turnrightsegment.cpp turnrightsegment.hpp \
+    turnsegment.cpp turnsegment.hpp vcrossroadsegment.cpp \
+    vcrossroadsegment.hpp virtualcamera.cpp virtualcamera.hpp \
+    virtualmotors.cpp virtualmotors.hpp virtualtrack.cpp virtualtrack.hpp \
+    widenarrowsegment.cpp widenarrowsegment.hpp zigzaglinesegment.cpp \
+    zigzaglinesegment.hpp
 
-follow_CFLAGS = ${glesv2_CFLAGS} ${egl_CFLAGS} ${x11_CFLAGS} ${opencv_CFLAGS}
-follow_LDADD = -lrfsgpio -lpthread ${glesv2_LIBS} ${egl_LIBS} ${x11_LIBS} \
-               ${opencv_LIBS}
-
-python_PYTHON = follow.py
-dist_bin_SCRIPTS = follow-monitor.py
+follow_SOURCES = camera.cpp camera.hpp camparams.hpp command.cpp \
+	command.hpp differentialroadfinder.cpp \
+	differentialroadfinder.hpp followexception.hpp \
+	framecapture.cpp framecapture.hpp gpiomotors.cpp \
+	gpiomotors.hpp linefollowerapp.cpp linefollowerapp.hpp \
+	main.cpp motors.cpp motors.hpp options.cpp options.hpp \
+	pathfinder.hpp pilot.cpp pilot.hpp realcamera.cpp \
+	realcamera.hpp road.cpp roadfinder.hpp road.hpp \
+	ssfapathfinder.cpp ssfapathfinder.hpp utilities.cpp \
+	utilities.hpp $(am__append_1)
+follow_CFLAGS = ${opencv_CFLAGS} $(am__append_2)
+follow_LDADD = -lrfsgpio -lpthread ${opencv_LIBS} $(am__append_3)
+@PYTHON_TRUE@python_PYTHON = follow.py
+@PYTHON_TRUE@dist_bin_SCRIPTS = follow-monitor.py
 all: all-am
 
 .SUFFIXES:

@@ -1,15 +1,15 @@
 
 #include "realcamera.hpp"
 
-// TODO: Use FollowException
+#include "followexception.hpp"
 
-RealCamera::RealCamera():
+RealCamera::RealCamera(const Options& options):
     c(0)
 {
     size_t h, w;
 
     if(!c.isOpened())
-        throw CAM_OPEN_ERROR;
+        throw FollowException("cannot open real camera");
 
     // Create the front and back frames
     h = get_height();
@@ -28,9 +28,9 @@ RealCamera::fetch()
     Mat aux;
 
     if (!c.grab())
-        throw CAM_GRAB_ERROR;
+        throw FollowException("cannot grab frame");
     if (!c.retrieve(back_buffer))
-        throw CAM_RETRIEVE_ERROR;
+        throw FollowException("cannot retrieve frame");
 
     // Swap the frames
     swap_buffers();

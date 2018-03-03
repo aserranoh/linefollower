@@ -91,7 +91,7 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-DIST_COMMON = $(srcdir)/Makefile.am $(dist_data_DATA) \
+DIST_COMMON = $(srcdir)/Makefile.am $(am__dist_data_DATA_DIST) \
 	$(dist_sysconf_DATA) $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
@@ -116,6 +116,10 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__dist_data_DATA_DIST = carpet.data road_across.data \
+	road_dashed1.data road_dashed2.data road.data road_narrow.data \
+	road_narrowwide.data road_vcross.data road_widenarrow.data \
+	road_zigzag.data wall.data wood.data fragment.sl vertex.sl
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -221,6 +225,8 @@ egl_LIBS = @egl_LIBS@
 exec_prefix = @exec_prefix@
 glesv2_CFLAGS = @glesv2_CFLAGS@
 glesv2_LIBS = @glesv2_LIBS@
+gtk_CFLAGS = @gtk_CFLAGS@
+gtk_LIBS = @gtk_LIBS@
 host_alias = @host_alias@
 htmldir = @htmldir@
 includedir = @includedir@
@@ -262,7 +268,7 @@ textures = carpet.data road_across.data road_dashed1.data road_dashed2.data \
 
 # Shaders for GLES2
 shaders = fragment.sl vertex.sl
-dist_data_DATA = $(textures) $(shaders)
+@GLES2_TRUE@dist_data_DATA = $(textures) $(shaders)
 
 # Configuration file
 dist_sysconf_DATA = follow.conf

@@ -21,29 +21,21 @@ typedef enum {ST_START, ST_LANE1, ST_LINE, ST_LANE2, ST_END} state_t;
 
 /* Constructor.
    Parameters:
-     * cam_params: camera's parameters.
-     * scanlines: number of lines of the original image to process.
-     * min_derivative: value to use to filter the values in the derivative
-           function.
-     * color_distance_threshold: color distance threshold, used to identify
-           white and black colors.
-     * scanline_frame: SL_SCREEN, to use scanlines equidistant in screen
-           coordinates or SL_WORLD, to use scanlines equidistant in world
-           coordinates.
-     * scanline_distance: if using the SL_WORLD frame, distance between
-           the scanlines.
-     * wheel_distance: distance between wheels (in cm).
+     * options: application's options.
 */
-DifferentialRoadFinder::DifferentialRoadFinder(const cam_params_t& cam_params,
-        size_t scanlines, int min_derivative, int color_distance_threshold,
-        scanline_frame_t scanline_frame, float scanline_distance,
-        float wheel_distance):
-    cam_params(cam_params), scanlines(scanlines),
-    min_derivative(min_derivative),
-    color_distance_threshold(color_distance_threshold), scanline_params(0),
-    wheel_distance(wheel_distance)
+DifferentialRoadFinder::DifferentialRoadFinder(const Options& options):
+    cam_params(options.get_int("CameraWidth"), options.get_int("CameraHeight"),
+        options.get_float("CameraFovh"), options.get_float("CameraFovv"),
+        options.get_float("CameraZ"),
+        options.get_float("CameraAngle") * M_PI / 180.0),
+    scanlines(options.get_int("ScanLines")),
+    min_derivative(options.get_int("MinDerivative")),
+    color_distance_threshold(options.get_int("ColorDistanceThreshold")),
+    scanline_params(0),
+    wheel_distance(options.get_float("WheelDistance"))
 {
-    init_scanline_params(scanline_frame, scanline_distance);
+    init_scanline_params((options.get_string("ScanLinesFrame") == "screen") ?
+        SL_SCREEN : SL_WORLD, options.get_float("ScanLinesDistance"));
 }
 
 DifferentialRoadFinder::~DifferentialRoadFinder()

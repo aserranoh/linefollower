@@ -17,7 +17,7 @@ class Options {
     public:
 
         Options();
-        Options(const char* options_file, const map<string, string>& defaults);
+        Options(const char* options_file, const char** defaults);
 
         // Get the value of an option and convert it to int
         int get_int(const string& option) const;

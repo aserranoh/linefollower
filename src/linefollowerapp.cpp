@@ -4,65 +4,66 @@
 #include <math.h>
 #include "opencv2/opencv.hpp"
 
+#include "config.h"
 #include "differentialroadfinder.hpp"
+#include "followexception.hpp"
 #include "gpiomotors.hpp"
 #include "linefollowerapp.hpp"
 #include "realcamera.hpp"
 #include "ssfapathfinder.hpp"
 #include "utilities.hpp"
-#include "virtualcamera.hpp"
-#include "virtualmotors.hpp"
-
-// Default options
-#define DEFAULT_CAMERA                      "real"
-#define DEFAULT_CAMERA_WIDTH                "640"
-#define DEFAULT_CAMERA_HEIGHT               "480"
-#define DEFAULT_MOTORS                      "real"
-#define DEFAULT_REAL_MOTORS_TYPE            "gpio"
-#define DEFAULT_ROAD_FINDER                 "differential"
-#define DEFAULT_SCANLINES                   "16"
-#define DEFAULT_MIN_DERIVATIVE              "30"
-#define DEFAULT_COLOR_DISTANCE_THRESHOLD    "1200"
-#define DEFAULT_SCANLINES_FRAME             "world"
-#define DEFAULT_PATH_FINDER                 "SSFA"
-#define DEFAULT_PORT                        "10101"
-#define DEFAULT_INACTIVITY_TIMEOUT          "300"
 
 #define NS_PER_SECOND   1000000000
 
-#define MIN_CAMANGLE    0.0
-#define MAX_CAMANGLE    90.0
+#include "virtualmotors.hpp"
+
+#ifdef WITH_GTK
 
 #define ROAD_SCALE  4
-#define X_TO_SCR(x) (x * ROAD_SCALE + cam_params.width/2)
-#define Y_TO_SCR(y) (cam_params.height - y * ROAD_SCALE)
+#define X_TO_SCR(x) (x * ROAD_SCALE + frame_width/2)
+#define Y_TO_SCR(y) (frame_height - y * ROAD_SCALE)
 #define ROAD_COLOR  Scalar(255, 0, 0)
 #define LINE_COLOR  Scalar(0, 255, 255)
 #define GOAL_COLOR  Scalar(0, 0, 255)
 #define PATH_COLOR  Scalar(0, 255, 0)
 
-#define KEY_NONE    -1
-#define KEY_LEFT    65361
-#define KEY_UP      65362
-#define KEY_RIGHT   65363
-#define KEY_DOWN    65364
+#endif
 
 // TODO: Choose the camera when there's more than one
 // TODO: Set real camera resolution
 // TODO: By default read the options from the default configuration file
+// TODO: Default options that are paths use autoconf variables
 
 using namespace utilities;
 
-LineFollowerApp::LineFollowerApp(const char *options_file):
-    virtual_motors(0), real_motors(0), stop_req(false), following(false),
-    speed(0.0), turn(0.0), has_display(getenv("DISPLAY") != NULL)
-{
-    map<string, string> defaults;
+const char* LineFollowerApp::options_default[] = {
+    "Camera", "real",
+    "CameraWidth", "640",
+    "CameraHeight", "480",
+    "Motors", "real",
+    "RealMotorsType", "gpio",
+    "RoadFinder", "differential",
+    "ScanLines", "16",
+    "MinDerivative", "30",
+    "ColorDistanceThreshold", "1200",
+    "ScanLinesFrame", "world",
+    "PathFinder", "SSFA",
+    "Port", "10101",
+    "InactivityTimeout", "300",
+    "VertexShader", "/usr/share/linefollower/vertex.sl",
+    "FragmentShader", "/usr/share/linefollower/fragment.sl",
+    "TexturesPath", "/usr/share/linefollower",
+    NULL, NULL,
+};
 
-    set_default_options(defaults);
-    options = Options(options_file, defaults);
-    command = Command(options);
-    create_frame_capture();
+LineFollowerApp::LineFollowerApp(const char *options_file):
+    options(options_file, options_default),
+    frame_width(options.get_int("CameraWidth")),
+    frame_height(options.get_int("CameraHeight")), capture(options),
+    virtual_motors(0), real_motors(0), stop_req(false), command(options),
+    following(false), speed(0.0), turn(0.0),
+    has_display(getenv("DISPLAY") != NULL)
+{
     create_motors();
     create_road_finder();
     create_path_finder();
@@ -83,9 +84,11 @@ LineFollowerApp::run()
 {
     cv::Mat frame;
 
-    // Create a window, only if a display is available
+    // Create a window, only if a display is available and supported
+#ifdef WITH_GTK
     if (has_display)
         namedWindow("frame", 1);
+#endif
 
     // Fetch the first frame
     capture.fetch();
@@ -98,40 +101,6 @@ LineFollowerApp::run()
 }
 
 // PRIVATE FUNCTIONS
-
-// Create the frame capture instance
-void
-LineFollowerApp::create_frame_capture()
-{
-    string camera_type, track_file;
-    float cam_angle;
-
-    // Load the camera parameters
-    cam_params.width = options.get_int("CameraWidth");
-    cam_params.height = options.get_int("CameraHeight");
-    cam_params.fovh = options.get_float("CameraFovh");
-    cam_params.fovv = options.get_float("CameraFovv");
-    cam_params.cam_z = options.get_float("CameraZ");
-    cam_angle = options.get_float("CameraAngle");
-    if (cam_angle > MAX_CAMANGLE || cam_angle < MIN_CAMANGLE) {
-        errx(1, "camera angle must be between %.1f and %.1f degrees",
-            MIN_CAMANGLE, MAX_CAMANGLE);
-    }
-    cam_params.cam_angle = cam_angle * M_PI / 180.0;
-
-    // Get the camera type and, if virtual, the track file
-    camera_type = options.get_string("Camera");
-    if (camera_type == "virtual") {
-        try {
-            track_file = options.get_string("TrackFile");
-        } catch (out_of_range) {
-            errx(1, "track file not specified");
-        }
-    }
-
-    capture = FrameCapture(cam_params, camera_type, track_file);
-    capture.start();
-}
 
 // Create the motors
 void
@@ -147,6 +116,7 @@ LineFollowerApp::create_motors()
     ki = options.get_float("Ki");
     kd = options.get_float("Kd");
 
+#ifdef WITH_GLES2
     if (motors_types == "virtual" || motors_types == "both") {
         // The type of camera must be virtual to use virtual motors
         if (options.get_string("Camera") != "virtual") {
@@ -154,14 +124,13 @@ LineFollowerApp::create_motors()
         } else {
             try {
                 // Create virtual motors
-                // Wait until the camera is created inside capture
-                while (!capture.get_camera());
-                virtual_motors = new VirtualMotors(
-                    (VirtualCamera *)(capture.get_camera()),
+                // TODO: pass options to the motors
+                virtual_motors = new VirtualMotors(capture.get_camera(),
                     options.get_float("VirtualMotorsRpm"),
                     options.get_float("WheelDistance"),
                     options.get_float("WheelDiameter"));
                 // Create the virtual motors pilot
+                // TODO: pass options to Pilot
                 virtual_motors_pilot = Pilot(
                     virtual_motors, max_speed, kp, ki, kd);
             } catch (exception &e) {
@@ -169,12 +138,14 @@ LineFollowerApp::create_motors()
             }
         }
     }
+#endif
     if (motors_types == "real" || motors_types == "both") {
         // Create real motors
         try {
             real_motors_type = options.get_string("RealMotorsType");
             if (real_motors_type == "gpio") {
                 // Create GPIO motors
+                // TODO: pass options to motors
                 real_motors = new GPIOMotors(
                     options.get_int("GPIOMotorsPWMLeft"),
                     options.get_int("GPIOMotorsPWMRight"),
@@ -186,6 +157,7 @@ LineFollowerApp::create_motors()
                     options.get_float("WheelDistance"));
             }
             // Create the real motors pilot
+            // TODO: pass options to pilot
             real_motors_pilot = Pilot(real_motors, max_speed, kp, ki, kd);
         } catch (exception &e) {
             warnx("cannot create real motors: %s", e.what());
@@ -201,7 +173,7 @@ LineFollowerApp::create_path_finder()
     if (path_finder_type == "SSFA") {
         path_finder = new SSFAPathFinder();
     } else {
-        errx(1, "unknown path finder type");
+        throw FollowException("unknown path finder type");
     }
 }
 
@@ -209,21 +181,16 @@ LineFollowerApp::create_path_finder()
 void
 LineFollowerApp::create_road_finder()
 {
-    scanline_frame_t frame;
-
     string road_finder_type = options.get_string("RoadFinder");
     if (road_finder_type == "differential") {
-        frame = (options.get_string("ScanLinesFrame") == "screen") ? SL_SCREEN
-            : SL_WORLD;
-        road_finder = new DifferentialRoadFinder(cam_params,
-            options.get_int("ScanLines"), options.get_int("MinDerivative"),
-            options.get_int("ColorDistanceThreshold"), frame,
-            options.get_float("ScanLinesDistance"),
-            options.get_float("WheelDistance"));
+        road_finder = new DifferentialRoadFinder(options);
     } else {
-        errx(1, "unknown road finder type");
+        throw FollowException("unknown road finder type");
     }
 }
+
+// These functions are only defined if there's support for gtk
+#ifdef WITH_GTK
 
 // Draw the path
 void
@@ -265,6 +232,8 @@ LineFollowerApp::draw_road(Mat& frame)
         GOAL_COLOR, 2);
 }
 
+#endif
+
 /* Get the inputs: camera frame.
    Parameters:
      * frame: variable where to write the next camera frame.
@@ -274,8 +243,11 @@ LineFollowerApp::inputs(Mat& frame)
 {
     msg_t cmd;
 
+    // Get the next frame and launch the capture of a new one in parallel
     frame = capture.next();
     capture.fetch();
+
+    // Process input commands
     while (command.get_command(cmd)) {
         switch (cmd.type) {
             case CMD_START: start_motors(); break;
@@ -335,6 +307,7 @@ LineFollowerApp::move_motors()
 void
 LineFollowerApp::outputs(Mat& frame)
 {
+#ifdef WITH_GTK
     if (has_display) {
         draw_road(frame);
         draw_path(frame);
@@ -342,9 +315,10 @@ LineFollowerApp::outputs(Mat& frame)
         cv::waitKey(1);
         imshow("frame", frame);
     }
+#endif
 
     // Print the fps
-    //printfps(1);
+    printfps(1);
 
     move_motors();
     // Send the road and path to the possible subscriptors
@@ -360,28 +334,6 @@ LineFollowerApp::processing(Mat& frame)
 {
     road_finder->find(frame, road);
     path_finder->find(road, path);
-}
-
-/* Set the default options.
-   Parameters:
-     * defaults: map where to put the default options.
-*/
-void
-LineFollowerApp::set_default_options(map<string, string>& defaults)
-{
-    defaults["Camera"] = DEFAULT_CAMERA;
-    defaults["CameraWidth"] = DEFAULT_CAMERA_WIDTH;
-    defaults["CameraHeight"] = DEFAULT_CAMERA_HEIGHT;
-    defaults["Motors"] = DEFAULT_MOTORS;
-    defaults["RealMotorsType"] = DEFAULT_REAL_MOTORS_TYPE;
-    defaults["RoadFinder"] = DEFAULT_ROAD_FINDER;
-    defaults["ScanLines"] = DEFAULT_SCANLINES;
-    defaults["MinDerivative"] = DEFAULT_MIN_DERIVATIVE;
-    defaults["ColorDistanceThreshold"] = DEFAULT_COLOR_DISTANCE_THRESHOLD;
-    defaults["ScanLinesFrame"] = DEFAULT_SCANLINES_FRAME;
-    defaults["PathFinder"] = DEFAULT_PATH_FINDER;
-    defaults["Port"] = DEFAULT_PORT;
-    defaults["InactivityTimeout"] = DEFAULT_INACTIVITY_TIMEOUT;
 }
 
 // Start the motors (switch to autonomous mode)

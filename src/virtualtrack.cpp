@@ -1,4 +1,5 @@
 
+#include <fstream>
 #include <glm/gtc/matrix_transform.hpp>
 #include <limits.h>
 #include <math.h>
@@ -47,6 +48,23 @@ using namespace utilities;
 #define ROOM_NUM_VERTICES   24
 #define ROOM_NUM_INDICES    34
 
+const segment_id_t VirtualTrack::segments_ids[] = {
+    {SEGMENT_STRAIGHT, "Straight"},
+    {SEGMENT_TURNLEFT, "TurnLeft"},
+    {SEGMENT_TURNRIGHT, "TurnRight"},
+    {SEGMENT_DASHED1, "Dashed1"},
+    {SEGMENT_DASHED2, "Dashed2"},
+    {SEGMENT_ZIGZAG, "ZigZag"},
+    {SEGMENT_WIDENARROW, "WideNarrow"},
+    {SEGMENT_NARROW, "Narrow"},
+    {SEGMENT_NARROWWIDE, "NarrowWide"},
+    {SEGMENT_VCROSSROAD, "VCrossroad"},
+    {SEGMENT_ACROSSROAD, "ACrossroad"},
+    {SEGMENT_DOUBLETURNLEFT, "DoubleTurnLeft"},
+    {SEGMENT_DOUBLETURNRIGHT, "DoubleTurnRight"},
+    {SEGMENT_NULL, ""}
+};
+
 const texture_info_t VirtualTrack::texture_info[NUM_TEXTURES] = {
     {"carpet.data", 256, 256, CARPET_TEXTURE},
     {"wall.data", 1, 1, WALL_TEXTURE},
@@ -67,13 +85,13 @@ const texture_info_t VirtualTrack::texture_info[NUM_TEXTURES] = {
      * segments: sequence of segments to build the track. The last one must be
                  SEGMENT_NULL.
 */
-VirtualTrack::VirtualTrack(const vector<segment_t>& segments):
+VirtualTrack::VirtualTrack(const Options& options):
     bb_min(INT_MAX, INT_MAX, 0), bb_max(INT_MIN, INT_MIN, WALLS_H)
 {
-    init_segments(segments);
-    init_gl_program();
+    init_segments(options);
+    init_gl_program(options);
     init_gl_buffers();
-    init_gl_textures();
+    init_gl_textures(options);
     init_segments_geometry();
     compute_bounding_box();
     init_geometry();
@@ -427,7 +445,7 @@ VirtualTrack::init_gl_lights()
 
 // Initialize OpenGL shader program.
 void
-VirtualTrack::init_gl_program()
+VirtualTrack::init_gl_program(const Options& options)
 {
     GLuint vertex_shader, fragment_shader;
     GLint linked, infolen;
@@ -436,17 +454,19 @@ VirtualTrack::init_gl_program()
     string errmsg;
 
     // Load the vertex and fragment shaders source files
-    const char *vertex_shader_src = loadfile(VERTEX_SHADER_FILE);
+    const char *vertex_shader_src = loadfile(
+        options.get_string("VertexShader").c_str());
     if (!vertex_shader_src) {
         e = errno;
-        throw FollowException(string(
-            "error loading file '" VERTEX_SHADER_FILE "': ") + strerror(e));
+        throw FollowException(string("error loading file '")
+            + options.get_string("VertexShader") + "': " + strerror(e));
     }
-    const char *fragment_shader_src = loadfile(FRAGMENT_SHADER_FILE);
+    const char *fragment_shader_src = loadfile(
+        options.get_string("FragmentShader").c_str());
     if (!fragment_shader_src) {
         e = errno;
-        throw FollowException(string(
-            "error loading file '" FRAGMENT_SHADER_FILE "': ") + strerror(e));
+        throw FollowException(string("error loading file '")
+            + options.get_string("FragmentShader") + "': " + strerror(e));
     }
 
     // Compile the shaders
@@ -489,7 +509,7 @@ VirtualTrack::init_gl_program()
 
 // Initialize textures
 void
-VirtualTrack::init_gl_textures()
+VirtualTrack::init_gl_textures(const Options& options)
 {
     // General textures state
     glGenTextures(NUM_TEXTURES, context.tex_index);
@@ -498,21 +518,31 @@ VirtualTrack::init_gl_textures()
 
     // Create the textures
     for (int i = 0; i < NUM_TEXTURES; i++) {
+        string texfile = options.get_string("TexturesPath") + "/"
+            + texture_info[i].filename;
         create_texture_from_file(texture_info[i].index, texture_info[i].w,
-            texture_info[i].h, texture_info[i].filename);
+            texture_info[i].h, texfile.c_str());
     }
 }
 
 // Build the track segments.
 void
-VirtualTrack::init_segments(const vector<segment_t>& segments)
+VirtualTrack::init_segments(const Options& options)
 {
+    vector<segment_t> segments;
     vector<segment_t>::const_iterator it;
     TrackSegment *s;
     glm::vec3 pos(0, 0, 0);
     float orient = M_PI/2;
     segment_t seg;
 
+    // Load the track file
+    try {
+        load_track_file(options.get_string("TrackFile"), segments);
+    } catch (out_of_range) {
+        throw FollowException("track file not specified");
+    }
+    // Build the segments
     for (it = segments.begin(); it != segments.end(); it++) {
         seg = *it;
         // Get the position where to put the segment
@@ -580,6 +610,61 @@ VirtualTrack::init_segments_geometry()
         (*it)->init_geometry(vertices_i, indices_i, context);
         vertices_i += (*it)->get_num_vertices();
         indices_i += (*it)->get_num_indices();
+    }
+}
+
+// Load a track file (for the virtual camera)
+void
+VirtualTrack::load_track_file(const string& track_file,
+    vector<segment_t>& segments)
+{
+    string line;
+    size_t linenum = 1, sep;
+    ifstream f(track_file);
+    segment_t s;
+
+    if (f.fail()) {
+        throw FollowException("cannot open file " + track_file + ": "
+            + strerror(errno));
+    } else {
+        while (getline(f, line)) {
+            // Ignore comments
+            if (line[0] == '#') continue;
+            // Get the elements of the line
+            stringstream ss(line);
+            string stype, sinput, soutput;
+            ss >> stype >> sinput >> soutput;
+            // Get the type of segment
+            s.type = SEGMENT_NULL;
+            for (size_t i = 0; segments_ids[i].type != SEGMENT_NULL; i++) {
+                if (stype == segments_ids[i].str_id) {
+                    s.type = segments_ids[i].type;
+                }
+            }
+            if (s.type == SEGMENT_NULL) {
+                throw FollowException(track_file + ":"
+                    + std::to_string(linenum) + ": wrong track segment '"
+                    + line + "'");
+            }
+            // Get the input
+            s.input = (sinput != "") ? atoi(sinput.c_str()) : 0;
+            // Get the output
+            if (soutput != "") {
+                sep = soutput.find(':');
+                if (sep != soutput.npos) {
+                    s.prev = atoi(soutput.substr(0, sep).c_str());
+                    s.output = atoi(soutput.substr(sep + 1).c_str());
+                } else {
+                    s.prev = atoi(soutput.c_str());
+                    s.output = 0;
+                }
+            } else {
+                s.prev = -1;
+                s.output = 0;
+            }
+            segments.push_back(s);
+            linenum++;
+        }
     }
 }
 
