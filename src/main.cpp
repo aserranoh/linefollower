@@ -8,13 +8,16 @@
 
 #define OPTSTRING   "c:dhv"
 
+// Configuration file, that contains the application options
+#define DEFAULT_CONFIGFILE  SYSCONFDIR "/follow.conf"
+
 // TODO: Daemonize
 // TODO: Capture signals to exit gracefully
 // TODO: Use config.h defines
 // TODO: Add logging facility
 
 // Configuration file
-const char *config_file = 0;
+const char *config_file = DEFAULT_CONFIGFILE;
 
 // Daemonize or not this process
 bool is_daemon = false;
@@ -74,10 +77,6 @@ parse_args(int argc, char **argv)
                 break;
         }
     } while (o != -1);
-
-    // Give an error if config_file is not given
-    if (!config_file)
-        errx(1, "missing config file");
 }
 
 // Transform this process into a daemon

@@ -12,9 +12,6 @@
 
 #define DEG_TO_RAD(d)       ((d) * M_PI / 180.0)
 
-// TODO: Make it an algorithm parameter
-#define ROAD_DELTA  15.0
-
 using namespace utilities;
 
 typedef enum {ST_START, ST_LANE1, ST_LINE, ST_LANE2, ST_END} state_t;
@@ -32,7 +29,8 @@ DifferentialRoadFinder::DifferentialRoadFinder(const Options& options):
     min_derivative(options.get_int("MinDerivative")),
     color_distance_threshold(options.get_int("ColorDistanceThreshold")),
     scanline_params(0),
-    wheel_distance(options.get_float("WheelDistance"))
+    wheel_distance(options.get_float("WheelDistance")),
+    road_delta(options.get_float("RoadDelta"))
 {
     init_scanline_params((options.get_string("ScanLinesFrame") == "screen") ?
         SL_SCREEN : SL_WORLD, options.get_float("ScanLinesDistance"));
@@ -361,14 +359,14 @@ DifferentialRoadFinder::generate_new_section(float start, float end,
         prev_has_line = (prev_section.line[0] != FLT_MAX);
         if (has_line && prev_has_line) {
             // Add the section if the lines are aligned
-            add_section = (line > prev_section.line[0] - ROAD_DELTA
-                && line < prev_section.line[0] + ROAD_DELTA);
+            add_section = (line > prev_section.line[0] - road_delta
+                && line < prev_section.line[0] + road_delta);
         } else {
             // Add the section if the left or right edges are aligned
-            left_aligned = (start > prev_section.left[0] - ROAD_DELTA
-                && start < prev_section.left[0] + ROAD_DELTA);
-            right_aligned = (end > prev_section.right[0] - ROAD_DELTA
-                && end < prev_section.right[0] + ROAD_DELTA);
+            left_aligned = (start > prev_section.left[0] - road_delta
+                && start < prev_section.left[0] + road_delta);
+            right_aligned = (end > prev_section.right[0] - road_delta
+                && end < prev_section.right[0] + road_delta);
             add_section = left_aligned || right_aligned;
         }
     }

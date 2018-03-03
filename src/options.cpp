@@ -13,6 +13,11 @@ Options::Options(const char* options_file, const char** defaults)
     std::string line;
     size_t pos_eq;
 
+    // Check that the file is opened
+    if (!f.is_open()) {
+        throw FollowException(string("error opening file '")
+            + options_file + "'");
+    }
     while (std::getline(f, line)) {
         // Jump comments and white lines
         if (line == "" || line[0] == '#') {

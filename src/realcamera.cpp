@@ -4,12 +4,22 @@
 #include "followexception.hpp"
 
 RealCamera::RealCamera(const Options& options):
-    c(0)
+    c(options.get_int("VideoCaptureIndex"))
 {
     size_t h, w;
 
     if(!c.isOpened())
         throw FollowException("cannot open real camera");
+
+    // Set the resolution
+    w = options.get_int("CameraWidth");
+    h = options.get_int("CameraHeight");
+    if (!c.set(CV_CAP_PROP_FRAME_WIDTH, w)) {
+        throw FollowException("wrong camera width: " + std::to_string(w));
+    }
+    if (!c.set(CV_CAP_PROP_FRAME_HEIGHT, h)) {
+        throw FollowException("wrong camera height: " + std::to_string(h));
+    }
 
     // Create the front and back frames
     h = get_height();

@@ -1,7 +1,7 @@
 AC_INIT([linefollower], [0.1], [toni.serranoh@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_CXX
-AM_CPPFLAGS=-DSYSCONFDIR='\"$(sysconfdir)\"'
+AM_CPPFLAGS="-DSYSCONFDIR="'\"$(sysconfdir)\"'" -DDATADIR="'\"$(datadir)\"'
 AC_SUBST(AM_CPPFLAGS)
 
 PKG_CHECK_MODULES([opencv], [opencv])

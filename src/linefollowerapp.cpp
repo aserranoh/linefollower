@@ -29,17 +29,13 @@
 
 #endif
 
-// TODO: Choose the camera when there's more than one
-// TODO: Set real camera resolution
-// TODO: By default read the options from the default configuration file
-// TODO: Default options that are paths use autoconf variables
-
 using namespace utilities;
 
 const char* LineFollowerApp::options_default[] = {
     "Camera", "real",
     "CameraWidth", "640",
     "CameraHeight", "480",
+    "VideoCaptureIndex", "0",
     "Motors", "real",
     "RealMotorsType", "gpio",
     "RoadFinder", "differential",
@@ -50,9 +46,10 @@ const char* LineFollowerApp::options_default[] = {
     "PathFinder", "SSFA",
     "Port", "10101",
     "InactivityTimeout", "300",
-    "VertexShader", "/usr/share/linefollower/vertex.sl",
-    "FragmentShader", "/usr/share/linefollower/fragment.sl",
-    "TexturesPath", "/usr/share/linefollower",
+    "VertexShader", DATADIR "/vertex.sl",
+    "FragmentShader", DATADIR "/fragment.sl",
+    "TexturesPath", DATADIR,
+    "RoadDelta", "15.0",
     NULL, NULL,
 };
 

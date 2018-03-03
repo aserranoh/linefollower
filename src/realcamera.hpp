@@ -13,14 +13,6 @@
 
 using namespace cv;
 
-// Enumeration of error codes
-typedef enum {
-    CAM_OK,
-    CAM_OPEN_ERROR,
-    CAM_GRAB_ERROR,
-    CAM_RETRIEVE_ERROR
-} cam_error_t;
-
 class RealCamera: public Camera {
 
     public:

@@ -82,6 +82,10 @@ class DifferentialRoadFinder: public RoadFinder {
         // Distance between wheels
         float wheel_distance;
 
+        // Max distance between coincident points of a section and the previous
+        // one to consider that they are connected.
+        float road_delta;
+
         /* Add a security margin to both sides of the road to assure that the
            robot won't fall off the limits.
            Parameters:
