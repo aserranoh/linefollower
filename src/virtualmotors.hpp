@@ -7,8 +7,6 @@
 #include "motors.hpp"
 #include "virtualcamera.hpp"
 
-// TODO: pass options to the constructor
-
 /* Represents a set of two motors that move two wheels in an axis in a virtual
    environment.
 */
@@ -19,13 +17,10 @@ class VirtualMotors: public Motors {
         /* Constructor.
            Parameters:
              * camera: represents the camera (or the mobile) that the motors
-                       move.
-             * max_speed: maximum speed of the motors (in rpm).
-             * wheel_distance: distance between wheels (in cm).
-             * wheel_diameter: diameter of the wheels (in cm).
+                 move.
+             * options: application's options.
         */
-        VirtualMotors(Camera *camera, float max_speed, float wheel_distance,
-            float wheel_diameter);
+        VirtualMotors(Camera *camera, const Options& options);
 
         virtual ~VirtualMotors();
 

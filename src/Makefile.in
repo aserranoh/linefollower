@@ -106,11 +106,11 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(pythondir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__follow_SOURCES_DIST = camera.cpp camera.hpp camparams.hpp \
-	command.cpp command.hpp differentialroadfinder.cpp \
+	command.cpp command.hpp daemon.h differentialroadfinder.cpp \
 	differentialroadfinder.hpp followexception.hpp \
 	framecapture.cpp framecapture.hpp gpiomotors.cpp \
-	gpiomotors.hpp linefollowerapp.cpp linefollowerapp.hpp \
-	main.cpp motors.cpp motors.hpp options.cpp options.hpp \
+	gpiomotors.hpp linefollowerapp.cpp linefollowerapp.hpp log.cpp \
+	log.hpp main.cpp motors.cpp motors.hpp options.cpp options.hpp \
 	pathfinder.hpp pilot.cpp pilot.hpp realcamera.cpp \
 	realcamera.hpp road.cpp roadfinder.hpp road.hpp \
 	ssfapathfinder.cpp ssfapathfinder.hpp utilities.cpp \
@@ -144,10 +144,10 @@ am__objects_1 = acrossroadsegment.$(OBJEXT) \
 @GLES2_TRUE@am__objects_2 = $(am__objects_1)
 am_follow_OBJECTS = camera.$(OBJEXT) command.$(OBJEXT) \
 	differentialroadfinder.$(OBJEXT) framecapture.$(OBJEXT) \
-	gpiomotors.$(OBJEXT) linefollowerapp.$(OBJEXT) main.$(OBJEXT) \
-	motors.$(OBJEXT) options.$(OBJEXT) pilot.$(OBJEXT) \
-	realcamera.$(OBJEXT) road.$(OBJEXT) ssfapathfinder.$(OBJEXT) \
-	utilities.$(OBJEXT) $(am__objects_2)
+	gpiomotors.$(OBJEXT) linefollowerapp.$(OBJEXT) log.$(OBJEXT) \
+	main.$(OBJEXT) motors.$(OBJEXT) options.$(OBJEXT) \
+	pilot.$(OBJEXT) realcamera.$(OBJEXT) road.$(OBJEXT) \
+	ssfapathfinder.$(OBJEXT) utilities.$(OBJEXT) $(am__objects_2)
 follow_OBJECTS = $(am_follow_OBJECTS)
 am__DEPENDENCIES_1 =
 @GLES2_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) \
@@ -380,11 +380,11 @@ virtual_camera_SOURCES = acrossroadsegment.cpp acrossroadsegment.hpp \
     zigzaglinesegment.hpp
 
 follow_SOURCES = camera.cpp camera.hpp camparams.hpp command.cpp \
-	command.hpp differentialroadfinder.cpp \
+	command.hpp daemon.h differentialroadfinder.cpp \
 	differentialroadfinder.hpp followexception.hpp \
 	framecapture.cpp framecapture.hpp gpiomotors.cpp \
-	gpiomotors.hpp linefollowerapp.cpp linefollowerapp.hpp \
-	main.cpp motors.cpp motors.hpp options.cpp options.hpp \
+	gpiomotors.hpp linefollowerapp.cpp linefollowerapp.hpp log.cpp \
+	log.hpp main.cpp motors.cpp motors.hpp options.cpp options.hpp \
 	pathfinder.hpp pilot.cpp pilot.hpp realcamera.cpp \
 	realcamera.hpp road.cpp roadfinder.hpp road.hpp \
 	ssfapathfinder.cpp ssfapathfinder.hpp utilities.cpp \
@@ -526,6 +526,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/framecapture.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gpiomotors.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linefollowerapp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/motors.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/narrowsegment.Po@am__quote@

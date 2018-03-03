@@ -1,5 +1,4 @@
 
-#include <err.h>
 #include <glm/glm.hpp>
 #include <math.h>
 #include "opencv2/opencv.hpp"
@@ -9,11 +8,10 @@
 #include "followexception.hpp"
 #include "gpiomotors.hpp"
 #include "linefollowerapp.hpp"
+#include "log.hpp"
 #include "realcamera.hpp"
 #include "ssfapathfinder.hpp"
 #include "utilities.hpp"
-
-#define NS_PER_SECOND   1000000000
 
 #include "virtualmotors.hpp"
 
@@ -97,6 +95,13 @@ LineFollowerApp::run()
     }
 }
 
+// Stop the main loop
+void
+LineFollowerApp::stop()
+{
+    stop_req = true;
+}
+
 // PRIVATE FUNCTIONS
 
 // Create the motors
@@ -105,33 +110,21 @@ LineFollowerApp::create_motors()
 {
     string motors_types = options.get_string("Motors");
     string real_motors_type;
-    float max_speed, kp, ki, kd;
-
-    // Read the parameters for the motors pilots
-    max_speed = options.get_float("MaxSpeed");
-    kp = options.get_float("Kp");
-    ki = options.get_float("Ki");
-    kd = options.get_float("Kd");
 
 #ifdef WITH_GLES2
     if (motors_types == "virtual" || motors_types == "both") {
         // The type of camera must be virtual to use virtual motors
         if (options.get_string("Camera") != "virtual") {
-            warnx("type of camera must be virtual to use virtual motors");
+            log_warn("type of camera must be virtual to use virtual motors");
         } else {
             try {
                 // Create virtual motors
-                // TODO: pass options to the motors
                 virtual_motors = new VirtualMotors(capture.get_camera(),
-                    options.get_float("VirtualMotorsRpm"),
-                    options.get_float("WheelDistance"),
-                    options.get_float("WheelDiameter"));
+                    options);
                 // Create the virtual motors pilot
-                // TODO: pass options to Pilot
-                virtual_motors_pilot = Pilot(
-                    virtual_motors, max_speed, kp, ki, kd);
-            } catch (exception &e) {
-                warnx("cannot create virtual motors: %s", e.what());
+                virtual_motors_pilot = Pilot(virtual_motors, options);
+            } catch (FollowException &e) {
+                log_warn(e.what());
             }
         }
     }
@@ -142,22 +135,12 @@ LineFollowerApp::create_motors()
             real_motors_type = options.get_string("RealMotorsType");
             if (real_motors_type == "gpio") {
                 // Create GPIO motors
-                // TODO: pass options to motors
-                real_motors = new GPIOMotors(
-                    options.get_int("GPIOMotorsPWMLeft"),
-                    options.get_int("GPIOMotorsPWMRight"),
-                    options.get_int("GPIOMotorsDirection0Left"),
-                    options.get_int("GPIOMotorsDirection1Left"),
-                    options.get_int("GPIOMotorsDirection0Right"),
-                    options.get_int("GPIOMotorsDirection1Right"),
-                    NS_PER_SECOND/options.get_int("GPIOMotorsPWMFrequency"),
-                    options.get_float("WheelDistance"));
+                real_motors = new GPIOMotors(options);
             }
             // Create the real motors pilot
-            // TODO: pass options to pilot
-            real_motors_pilot = Pilot(real_motors, max_speed, kp, ki, kd);
-        } catch (exception &e) {
-            warnx("cannot create real motors: %s", e.what());
+            real_motors_pilot = Pilot(real_motors, options);
+        } catch (FollowException &e) {
+            log_warn(e.what());
         }
     }
 }

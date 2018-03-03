@@ -18,19 +18,9 @@ class GPIOMotors: public Motors {
 
         /* Constructor.
            Params:
-             * pwm_left: PWM channel for the left motor.
-             * pwm_right: PWM channel for the right motor.
-             * dir0_left: GPIO direction pin 0 for the left motor.
-             * dir1_left: GPIO direction pin 1 for the left motor.
-             * dir0_right: GPIO direction pin 0 for the right motor.
-             * dir1_right: GPIO direction pin 1 for the right motor.
-             * pwm_period: period of the PWM signal (in ns).
-             * wheel_distance: distance between wheels (in cm).
+             * options: application's options.
         */
-        GPIOMotors(pwm_channel_t pwm_left, pwm_channel_t pwm_right,
-            gpio_pin_t dir0_left, gpio_pin_t dir1_left, gpio_pin_t dir0_right,
-            gpio_pin_t dir1_right, pwm_time_t pwm_period,
-            float wheel_distance);
+        GPIOMotors(const Options& options);
 
         virtual ~GPIOMotors();
 

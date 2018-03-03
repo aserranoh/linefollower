@@ -1,61 +1,59 @@
 
 #include "gpiomotors.hpp"
 
-#include <err.h>
+#include <string.h>
 
 #include "followexception.hpp"
 
+#define NS_PER_SECOND   1000000000
+
 /* Constructor.
    Params:
-     * pwm_left: PWM channel for the left motor.
-     * pwm_right: PWM channel for the right motor.
-     * dir0_left: GPIO direction pin 0 for the left motor.
-     * dir1_left: GPIO direction pin 1 for the left motor.
-     * dir0_right: GPIO direction pin 0 for the right motor.
-     * dir1_right: GPIO direction pin 1 for the right motor.
-     * pwm_period: period of the PWM signal (in ns).
-     * wheel_distance: distance between wheels (in cm).
+     * options: application's options.
 */
-GPIOMotors::GPIOMotors(pwm_channel_t pwm_left, pwm_channel_t pwm_right,
-        gpio_pin_t dir0_left, gpio_pin_t dir1_left, gpio_pin_t dir0_right,
-        gpio_pin_t dir1_right, pwm_time_t pwm_period, float wheel_distance):
-    Motors(wheel_distance), pwm_period(pwm_period)
+GPIOMotors::GPIOMotors(const Options& options):
+    Motors(options),
+    pwm_period(NS_PER_SECOND/options.get_int("GPIOMotorsPWMFrequency"))
 {
-    direction0_left.pin = dir0_left;
-    direction1_left.pin = dir1_left;
+    direction0_left.pin = options.get_int("GPIOMotorsDirection0Left");
+    direction1_left.pin = options.get_int("GPIOMotorsDirection1Left");
     direction0_left.flags = direction1_left.flags = 0;
-    direction0_right.pin = dir0_right;
-    direction1_right.pin = dir1_right;
+    direction0_right.pin = options.get_int("GPIOMotorsDirection0Right");
+    direction1_right.pin = options.get_int("GPIOMotorsDirection1Right");
     direction0_right.flags = direction1_right.flags = 0;
     this->pwm_left.chip = this->pwm_right.chip = 0;
-    this->pwm_left.channel = pwm_left;
-    this->pwm_right.channel = pwm_right;
+    this->pwm_left.channel = options.get_int("GPIOMotorsPWMLeft");
+    this->pwm_right.channel = options.get_int("GPIOMotorsPWMRight");
     this->pwm_left.flags = this->pwm_right.flags = 0;
     this->pwm_left.period = this->pwm_right.period = pwm_period;
     try {
         if (rfs_gpio_open(&direction0_left, RFS_GPIO_OUT_LOW)) {
-            warn("initializing direction0_left");
-            throw FollowException("cannot initialize left motor");
+            throw FollowException(
+                string("cannot initialize left motor dir0 GPIO: ")
+                + strerror(errno));
         }
         if (rfs_gpio_open(&direction1_left, RFS_GPIO_OUT_LOW)) {
-            warn("initializing direction1_left");
-            throw FollowException("cannot initialize left motor");
+            throw FollowException(
+                string("cannot initialize left motor dir1 GPIO: ")
+                + strerror(errno));
         }
         if (rfs_gpio_open(&direction0_right, RFS_GPIO_OUT_LOW)) {
-            warn("initializing direction0_right");
-            throw FollowException("cannot initialize right motor");
+            throw FollowException(
+                string("cannot initialize right motor dir0 GPIO: ")
+                + strerror(errno));
         }
         if (rfs_gpio_open(&direction1_right, RFS_GPIO_OUT_LOW)) {
-            warn("initializing direction1_right");
-            throw FollowException("cannot initialize right motor");
+            throw FollowException(
+                string("cannot initialize right motor dir1 GPIO: ")
+                + strerror(errno));
         }
         if (rfs_pwm_open(&(this->pwm_left))) {
-            warn("initializing pwm_left");
-            throw FollowException("cannot initialize left motor");
+            throw FollowException(string("cannot initialize left motor PWM: ")
+                + strerror(errno));
         }
         if (rfs_pwm_open(&(this->pwm_right))) {
-            warn("initializing pwm_right");
-            throw FollowException("cannot initialize right motor");
+            throw FollowException(string("cannot initialize right motor PWM: ")
+                + strerror(errno));
         }
     } catch (FollowException &e) {
         this->close();

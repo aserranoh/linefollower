@@ -1,10 +1,10 @@
 
-#include <err.h>
 #include <pthread.h>
 #include <sstream>
 
 #include "followexception.hpp"
 #include "framecapture.hpp"
+#include "log.hpp"
 #include "realcamera.hpp"
 
 #ifdef WITH_GLES2
@@ -150,7 +150,7 @@ FrameCapture::run()
         }
     // In case of error report it and stop the thread
     } catch (FollowException& e) {
-        warnx("%s", e.what());
+        log_warn(e.what());
         // Notify the main thread to unlock all the conditions
         pthread_mutex_lock(&mutex_cam_avail);
         cam_init_finished = true;

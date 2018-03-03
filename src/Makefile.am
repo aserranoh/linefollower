@@ -17,12 +17,12 @@ virtual_camera_SOURCES = acrossroadsegment.cpp acrossroadsegment.hpp \
     zigzaglinesegment.hpp
 
 follow_SOURCES = camera.cpp camera.hpp camparams.hpp command.cpp command.hpp \
-    differentialroadfinder.cpp differentialroadfinder.hpp followexception.hpp \
-    framecapture.cpp framecapture.hpp gpiomotors.cpp gpiomotors.hpp \
-    linefollowerapp.cpp linefollowerapp.hpp main.cpp motors.cpp motors.hpp \
-    options.cpp options.hpp pathfinder.hpp pilot.cpp pilot.hpp realcamera.cpp \
-    realcamera.hpp road.cpp roadfinder.hpp road.hpp ssfapathfinder.cpp \
-    ssfapathfinder.hpp utilities.cpp utilities.hpp
+    daemon.h differentialroadfinder.cpp differentialroadfinder.hpp \
+    followexception.hpp framecapture.cpp framecapture.hpp gpiomotors.cpp \
+    gpiomotors.hpp linefollowerapp.cpp linefollowerapp.hpp log.cpp log.hpp \
+    main.cpp motors.cpp motors.hpp options.cpp options.hpp pathfinder.hpp \
+    pilot.cpp pilot.hpp realcamera.cpp realcamera.hpp road.cpp roadfinder.hpp \
+    road.hpp ssfapathfinder.cpp ssfapathfinder.hpp utilities.cpp utilities.hpp
 
 follow_CFLAGS = ${opencv_CFLAGS}
 follow_LDADD = -lrfsgpio -lpthread ${opencv_LIBS}

@@ -21,14 +21,12 @@ using namespace utilities;
    Parameters:
      * camera: represents the camera (or the mobile) that the motors
                move.
-     * max_speed: maximum speed of the motors (in rpm).
-     * wheel_distance: distance between wheels (in cm).
-     * wheel_diameter: diameter of the wheels (in cm).
+     * options: application's options.
 */
-VirtualMotors::VirtualMotors(Camera *camera, float max_speed,
-        float wheel_distance, float wheel_diameter):
-    Motors(wheel_distance), camera((VirtualCamera*)camera),
-    max_speed(max_speed * M_PI * wheel_diameter / S_PER_MIN)
+VirtualMotors::VirtualMotors(Camera *camera, const Options& options):
+        Motors(options), camera((VirtualCamera*)camera),
+    max_speed(options.get_float("VirtualMotorsRpm")
+        * M_PI * options.get_float("WheelDiameter") / S_PER_MIN)
 {}
 
 VirtualMotors::~VirtualMotors()

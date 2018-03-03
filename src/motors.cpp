@@ -3,10 +3,10 @@
 
 /* Constructor.
    Params:
-     * wheel_distance: distance between wheels (in cm).
+     * options: application's options.
 */
-Motors::Motors(float wheel_distance):
-    wheel_distance(wheel_distance)
+Motors::Motors(const Options& options):
+    wheel_distance(options.get_float("WheelDistance"))
 {}
 
 Motors::~Motors()

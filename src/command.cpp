@@ -2,12 +2,14 @@
 #include "command.hpp"
 
 #include <endian.h>
-#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "followexception.hpp"
+#include "log.hpp"
 
 #define EVT_ECHO_LENGTH 64
 #define MAX_EVT_LENGTH  (sizeof(float)*4 + 1)
@@ -67,7 +69,8 @@ Command::Command(const Options& options)
     // Create the socket
     fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (fd < 0) {
-        err(1, "creating socket");
+        throw FollowException(string("cannot create socket: ")
+            + strerror(errno));
     }
     // Make the socket non blocking
     fcntl(fd, F_SETFL, O_NONBLOCK);
@@ -77,7 +80,8 @@ Command::Command(const Options& options)
     addr.sin_port = htons((short)options.get_int("Port"));
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     if (bind(fd, (struct sockaddr*)&addr, sizeof(addr))) {
-        err(1, "binding socket");
+        throw FollowException(string("cannot bind socket: ")
+            + strerror(errno));
     }
 
     // Fill the contents of the echo event
@@ -138,23 +142,24 @@ Command::get_command(msg_t& command)
             remove_subscriptors_timeout();
             return 0;
         } else {
-            err(1, "reciving data");
+            throw FollowException(string("error receiving data: ")
+                + strerror(errno));
         }
     }
     // If empty data was received, give a warning and return
     if (!rcvlen) {
-        warnx("received empty data");
+        log_warn("received empty data");
         return 0;
     }
     // Check that the received command is valid
     cmd = buf[0];
     if (cmd < CMD_ECHO || cmd > CMD_INFO) {
-        warnx("received unknown command %d", cmd);
+        log_warn("received unknown command %d", cmd);
         return 0;
     }
     // Check that the size of the command corresponds to the command type
     if (rcvlen != msg_lengths[cmd]) {
-        warnx("wrong size (%zd) for command type %d (expected %zd)",
+        log_warn("wrong size (%zd) for command type %d (expected %zd)",
             rcvlen, cmd, msg_lengths[cmd]);
         return 0;
     }
@@ -250,7 +255,8 @@ Command::echo(struct sockaddr_in& addr)
     if (sendto(fd, echo_event, msg_lengths[EVT_ECHO], 0, (sockaddr*)&addr,
         sizeof(addr)) < 0)
     {
-        err(1, "sending data");
+        throw FollowException(string("error sending data: ")
+            + strerror(errno));
     }
 }
 

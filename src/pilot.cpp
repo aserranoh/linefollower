@@ -9,14 +9,12 @@ Pilot::Pilot()
 /* Constructor.
    Parameters:
      * motors: the motors to control.
-     * max_speed: maximum speed to give to the motors.
-     * kp: PID proportional constant.
-     * ki: PID integrative constant.
-     * kd: PID derivative constant.
+     * options: application's options.
 */
-Pilot::Pilot(Motors *motors, float max_speed, float kp, float ki, float kd):
-    motors(motors), max_speed(max_speed), kp(kp), ki(ki), kd(kd),
-    sum_angle(0.0), prev_angle(0.0)
+Pilot::Pilot(Motors *motors, const Options& options):
+    motors(motors), max_speed(options.get_float("MaxSpeed")),
+    kp(options.get_float("Kp")), ki(options.get_float("Ki")),
+    kd(options.get_float("Kd")), sum_angle(0.0), prev_angle(0.0)
 {}
 
 /* Set the new angle that the vehicle must turn.

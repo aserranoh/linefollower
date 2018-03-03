@@ -2,15 +2,17 @@
 #ifndef MOTORS_HPP
 #define MOTORS_HPP
 
+#include "options.hpp"
+
 class Motors {
 
     public:
 
         /* Constructor.
            Params:
-             * wheel_distance: distance between wheels (in cm).
+             * options: application's options.
         */
-        Motors(float wheel_distance);
+        Motors(const Options& options);
 
         virtual ~Motors();
 

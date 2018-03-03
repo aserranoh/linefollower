@@ -13,12 +13,9 @@ class Pilot {
         /* Constructor.
            Parameters:
              * motors: the motors to control.
-             * max_speed: maximum speed to give to the motors.
-             * kp: PID proportional constant.
-             * ki: PID integrative constant.
-             * kd: PID derivative constant.
+             * options: application's options.
         */
-        Pilot(Motors *motors, float max_speed, float kp, float ki, float kd);
+        Pilot(Motors *motors, const Options& options);
 
         /* Set the new angle that the vehicle must turn.
            Parameters:

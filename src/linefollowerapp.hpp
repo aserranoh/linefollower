@@ -35,6 +35,9 @@ class LineFollowerApp {
         // Run the main loop of the application
         void run();
 
+        // Stop the main loop
+        void stop();
+
     private:
 
         // Application options

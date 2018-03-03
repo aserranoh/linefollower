@@ -1,39 +1,69 @@
 
-#include <err.h>
 #include <getopt.h>
 #include <stdio.h>
-#include <stdlib.h>
 
+#include "daemon.h"
 #include "linefollowerapp.hpp"
+#include "log.hpp"
 
-#define OPTSTRING   "c:dhv"
+// Short options:
+//   * h: help
+//   * v: version
+//   * c: configuration file
+//   * d: daemonize
+//   * p: pid file
+#define OPTSTRING   "hvc:dp:"
+
+// Name of the program, to use it in the version and help string
+#define PROGNAME    "follow"
 
 // Configuration file, that contains the application options
 #define DEFAULT_CONFIGFILE  SYSCONFDIR "/follow.conf"
 
-// TODO: Daemonize
-// TODO: Capture signals to exit gracefully
-// TODO: Use config.h defines
-// TODO: Add logging facility
-
 // Configuration file
 const char *config_file = DEFAULT_CONFIGFILE;
 
-// Daemonize or not this process
-bool is_daemon = false;
+// Flag that tells if this process must be daemonized
+int is_daemon = 0;
+
+// Pid file to identify the daemon
+const char *pidfile = 0;
+
+// LineFollowerApp instance
+LineFollowerApp *app = 0;
+
+/* Signals handler.
+   This handler is executed upon reception of the signals SIGINT and SIGTERM.
+   The stop flag it is set, which indicates that the process must finish.
+
+   Parameters:
+     * signum: the signal received (although it is not used).
+*/
+void
+signal_handler(int signum)
+{
+    // Set the done flag
+    if (app) {
+        log_info("signal received");
+        app->stop();
+    };
+}
 
 // Print help message and exits
 void
 print_help()
 {
-    printf("Usage: follow [options ...]\n"
-           "Options:\n"
-           "  -h, --help                    Show this message and exit.\n"
-           "  -v, --version                 Show version information\n."
-           "  -c=CONFIG, --config=CONFIG    Give the configuration file.\n"
-           "  -d, --daemonize               Daemonize this process.\n\n"
+    printf("Usage: " PROGNAME " [options]\n"
+"Options:\n"
+"  -h, --help                  Show this message and exit.\n"
+"  -v, --version               Show version information.\n"
+"  -c PATH, --config PATH      Give the configuration file.\n"
+"  -d, --daemonize             Daemonize this process.\n"
+"  -p PATH, --pidfile PATH     Create a pidfile.\n\n"
 
-           "Antonio Serrano Hernandez (toni.serranoh@gmail.com)\n");
+"Report bugs to:\n"
+"Antonio Serrano Hernandez (" PACKAGE_BUGREPORT ")\n"
+    );
     exit(0);
 }
 
@@ -41,8 +71,11 @@ print_help()
 void
 print_version()
 {
-    printf("follow 0.1\n"
-           "Copyright (C) 2017 Antonio Serrano\n");
+    printf(PROGNAME " (" PACKAGE_NAME ") " PACKAGE_VERSION "\n"
+"Copyright (C) 2018 Antonio Serrano\n"
+"This is free software; see the source for copying conditions.  There is NO\n"
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+    );
     exit(0);
 }
 
@@ -71,6 +104,10 @@ parse_args(int argc, char **argv)
                 break;
             case 'd':
                 is_daemon = true;
+                break;
+            case 'p':
+                pidfile = optarg;
+                break;
             case '?':
                 exit(1);
             default:
@@ -79,21 +116,50 @@ parse_args(int argc, char **argv)
     } while (o != -1);
 }
 
-// Transform this process into a daemon
-void daemonize()
+// Set the handler for the signals SIGINT and SIGTERM, to stop this process.
+void
+set_signals()
+
 {
+    struct sigaction sa;
+    sigset_t mask;
+
+    sigemptyset(&mask);
+    sa.sa_handler = signal_handler;
+    sa.sa_mask = mask;
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
 }
 
 int
 main(int argc, char **argv)
 {
-    parse_args(argc, argv);
-    // Daemonize this process, if necessary
-    if (is_daemon) {
-        daemonize();
+    int retcode = 0;
+
+    try {
+        parse_args(argc, argv);
+        // Set a handler for the signals SIGINT and SIGTERM to have a mechanism
+        // to stop this process.
+        set_signals();
+        // Daemonize, if demanded
+        if (is_daemon) {
+            if (daemonize(pidfile)) {
+                return 1;
+            }
+        }
+        // Initialize log facility
+        log_init(PROGNAME);
+        log_info("starting");
+        // Start line following application
+        LineFollowerApp a(config_file);
+        app = &a;
+        a.run();
+    } catch (exception &e) {
+        log_err(e.what());
+        retcode = 1;
     }
-    LineFollowerApp a(config_file);
-    a.run();
-    return 0;
+    log_info("terminating");
+    return retcode;
 }
 
