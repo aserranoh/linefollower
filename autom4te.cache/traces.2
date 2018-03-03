@@ -1255,72 +1255,72 @@ m4trace:configure.ac:7: -1- PKG_CHECK_EXISTS([opencv], [pkg_cv_[]opencv_CFLAGS=`
 m4trace:configure.ac:7: -1- PKG_CHECK_EXISTS([opencv], [pkg_cv_[]opencv_LIBS=`$PKG_CONFIG --[]libs "opencv" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
 m4trace:configure.ac:7: -1- _PKG_SHORT_ERRORS_SUPPORTED
-m4trace:configure.ac:12: -1- PKG_CHECK_MODULES([glesv2], [glesv2])
-m4trace:configure.ac:12: -1- m4_pattern_allow([^glesv2_CFLAGS$])
-m4trace:configure.ac:12: -1- m4_pattern_allow([^glesv2_LIBS$])
-m4trace:configure.ac:12: -1- PKG_CHECK_EXISTS([glesv2], [pkg_cv_[]glesv2_CFLAGS=`$PKG_CONFIG --[]cflags "glesv2" 2>/dev/null`
+m4trace:configure.ac:8: -1- AM_PATH_PYTHON
+m4trace:configure.ac:8: -1- m4_pattern_allow([^PYTHON$])
+m4trace:configure.ac:8: -1- m4_pattern_allow([^PYTHON$])
+m4trace:configure.ac:8: -1- m4_pattern_allow([^PYTHON_VERSION$])
+m4trace:configure.ac:8: -1- m4_pattern_allow([^PYTHON_PREFIX$])
+m4trace:configure.ac:8: -1- m4_pattern_allow([^PYTHON_EXEC_PREFIX$])
+m4trace:configure.ac:8: -1- m4_pattern_allow([^PYTHON_PLATFORM$])
+m4trace:configure.ac:8: -1- m4_pattern_allow([^pythondir$])
+m4trace:configure.ac:8: -1- m4_pattern_allow([^pkgpythondir$])
+m4trace:configure.ac:8: -1- m4_pattern_allow([^pyexecdir$])
+m4trace:configure.ac:8: -1- m4_pattern_allow([^pkgpyexecdir$])
+m4trace:configure.ac:13: -1- PKG_CHECK_MODULES([glesv2], [glesv2])
+m4trace:configure.ac:13: -1- m4_pattern_allow([^glesv2_CFLAGS$])
+m4trace:configure.ac:13: -1- m4_pattern_allow([^glesv2_LIBS$])
+m4trace:configure.ac:13: -1- PKG_CHECK_EXISTS([glesv2], [pkg_cv_[]glesv2_CFLAGS=`$PKG_CONFIG --[]cflags "glesv2" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
-m4trace:configure.ac:12: -1- PKG_CHECK_EXISTS([glesv2], [pkg_cv_[]glesv2_LIBS=`$PKG_CONFIG --[]libs "glesv2" 2>/dev/null`
+m4trace:configure.ac:13: -1- PKG_CHECK_EXISTS([glesv2], [pkg_cv_[]glesv2_LIBS=`$PKG_CONFIG --[]libs "glesv2" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
-m4trace:configure.ac:12: -1- _PKG_SHORT_ERRORS_SUPPORTED
-m4trace:configure.ac:12: -1- PKG_CHECK_MODULES([egl], [egl])
-m4trace:configure.ac:12: -1- m4_pattern_allow([^egl_CFLAGS$])
-m4trace:configure.ac:12: -1- m4_pattern_allow([^egl_LIBS$])
-m4trace:configure.ac:12: -1- PKG_CHECK_EXISTS([egl], [pkg_cv_[]egl_CFLAGS=`$PKG_CONFIG --[]cflags "egl" 2>/dev/null`
+m4trace:configure.ac:13: -1- _PKG_SHORT_ERRORS_SUPPORTED
+m4trace:configure.ac:13: -1- PKG_CHECK_MODULES([egl], [egl])
+m4trace:configure.ac:13: -1- m4_pattern_allow([^egl_CFLAGS$])
+m4trace:configure.ac:13: -1- m4_pattern_allow([^egl_LIBS$])
+m4trace:configure.ac:13: -1- PKG_CHECK_EXISTS([egl], [pkg_cv_[]egl_CFLAGS=`$PKG_CONFIG --[]cflags "egl" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
-m4trace:configure.ac:12: -1- PKG_CHECK_EXISTS([egl], [pkg_cv_[]egl_LIBS=`$PKG_CONFIG --[]libs "egl" 2>/dev/null`
+m4trace:configure.ac:13: -1- PKG_CHECK_EXISTS([egl], [pkg_cv_[]egl_LIBS=`$PKG_CONFIG --[]libs "egl" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
-m4trace:configure.ac:12: -1- _PKG_SHORT_ERRORS_SUPPORTED
-m4trace:configure.ac:12: -1- PKG_CHECK_MODULES([x11], [x11])
-m4trace:configure.ac:12: -1- m4_pattern_allow([^x11_CFLAGS$])
-m4trace:configure.ac:12: -1- m4_pattern_allow([^x11_LIBS$])
-m4trace:configure.ac:12: -1- PKG_CHECK_EXISTS([x11], [pkg_cv_[]x11_CFLAGS=`$PKG_CONFIG --[]cflags "x11" 2>/dev/null`
+m4trace:configure.ac:13: -1- _PKG_SHORT_ERRORS_SUPPORTED
+m4trace:configure.ac:13: -1- PKG_CHECK_MODULES([x11], [x11])
+m4trace:configure.ac:13: -1- m4_pattern_allow([^x11_CFLAGS$])
+m4trace:configure.ac:13: -1- m4_pattern_allow([^x11_LIBS$])
+m4trace:configure.ac:13: -1- PKG_CHECK_EXISTS([x11], [pkg_cv_[]x11_CFLAGS=`$PKG_CONFIG --[]cflags "x11" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
-m4trace:configure.ac:12: -1- PKG_CHECK_EXISTS([x11], [pkg_cv_[]x11_LIBS=`$PKG_CONFIG --[]libs "x11" 2>/dev/null`
+m4trace:configure.ac:13: -1- PKG_CHECK_EXISTS([x11], [pkg_cv_[]x11_LIBS=`$PKG_CONFIG --[]libs "x11" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
-m4trace:configure.ac:12: -1- _PKG_SHORT_ERRORS_SUPPORTED
-m4trace:configure.ac:12: -1- m4_pattern_allow([^WITH_GLES2$])
-m4trace:configure.ac:18: -1- AM_CONDITIONAL([GLES2], [test "x$with_gles2" != "xno"])
-m4trace:configure.ac:18: -1- m4_pattern_allow([^GLES2_TRUE$])
-m4trace:configure.ac:18: -1- m4_pattern_allow([^GLES2_FALSE$])
-m4trace:configure.ac:18: -1- _AM_SUBST_NOTMAKE([GLES2_TRUE])
-m4trace:configure.ac:18: -1- _AM_SUBST_NOTMAKE([GLES2_FALSE])
-m4trace:configure.ac:23: -1- PKG_CHECK_MODULES([gtk], [gtk+-2.0])
-m4trace:configure.ac:23: -1- m4_pattern_allow([^gtk_CFLAGS$])
-m4trace:configure.ac:23: -1- m4_pattern_allow([^gtk_LIBS$])
-m4trace:configure.ac:23: -1- PKG_CHECK_EXISTS([gtk+-2.0], [pkg_cv_[]gtk_CFLAGS=`$PKG_CONFIG --[]cflags "gtk+-2.0" 2>/dev/null`
+m4trace:configure.ac:13: -1- _PKG_SHORT_ERRORS_SUPPORTED
+m4trace:configure.ac:13: -1- m4_pattern_allow([^WITH_GLES2$])
+m4trace:configure.ac:19: -1- AM_CONDITIONAL([GLES2], [test "x$with_gles2" != "xno"])
+m4trace:configure.ac:19: -1- m4_pattern_allow([^GLES2_TRUE$])
+m4trace:configure.ac:19: -1- m4_pattern_allow([^GLES2_FALSE$])
+m4trace:configure.ac:19: -1- _AM_SUBST_NOTMAKE([GLES2_TRUE])
+m4trace:configure.ac:19: -1- _AM_SUBST_NOTMAKE([GLES2_FALSE])
+m4trace:configure.ac:24: -1- PKG_CHECK_MODULES([gtk], [gtk+-2.0])
+m4trace:configure.ac:24: -1- m4_pattern_allow([^gtk_CFLAGS$])
+m4trace:configure.ac:24: -1- m4_pattern_allow([^gtk_LIBS$])
+m4trace:configure.ac:24: -1- PKG_CHECK_EXISTS([gtk+-2.0], [pkg_cv_[]gtk_CFLAGS=`$PKG_CONFIG --[]cflags "gtk+-2.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
-m4trace:configure.ac:23: -1- PKG_CHECK_EXISTS([gtk+-2.0], [pkg_cv_[]gtk_LIBS=`$PKG_CONFIG --[]libs "gtk+-2.0" 2>/dev/null`
+m4trace:configure.ac:24: -1- PKG_CHECK_EXISTS([gtk+-2.0], [pkg_cv_[]gtk_LIBS=`$PKG_CONFIG --[]libs "gtk+-2.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
-m4trace:configure.ac:23: -1- _PKG_SHORT_ERRORS_SUPPORTED
-m4trace:configure.ac:23: -1- m4_pattern_allow([^WITH_GTK$])
-m4trace:configure.ac:27: -1- AM_CONDITIONAL([GTK], [test "x$with_gtk" != "xno"])
-m4trace:configure.ac:27: -1- m4_pattern_allow([^GTK_TRUE$])
-m4trace:configure.ac:27: -1- m4_pattern_allow([^GTK_FALSE$])
-m4trace:configure.ac:27: -1- _AM_SUBST_NOTMAKE([GTK_TRUE])
-m4trace:configure.ac:27: -1- _AM_SUBST_NOTMAKE([GTK_FALSE])
-m4trace:configure.ac:32: -1- AM_PATH_PYTHON
-m4trace:configure.ac:32: -1- m4_pattern_allow([^PYTHON$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^PYTHON$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^PYTHON_VERSION$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^PYTHON_PREFIX$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^PYTHON_EXEC_PREFIX$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^PYTHON_PLATFORM$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^pythondir$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^pkgpythondir$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^pyexecdir$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^pkgpyexecdir$])
-m4trace:configure.ac:35: -1- AM_CONDITIONAL([PYTHON], [test "x$with_python" != "xno"])
-m4trace:configure.ac:35: -1- m4_pattern_allow([^PYTHON_TRUE$])
-m4trace:configure.ac:35: -1- m4_pattern_allow([^PYTHON_FALSE$])
-m4trace:configure.ac:35: -1- _AM_SUBST_NOTMAKE([PYTHON_TRUE])
-m4trace:configure.ac:35: -1- _AM_SUBST_NOTMAKE([PYTHON_FALSE])
-m4trace:configure.ac:43: -1- m4_pattern_allow([^LIB@&t@OBJS$])
-m4trace:configure.ac:43: -1- m4_pattern_allow([^LTLIBOBJS$])
-m4trace:configure.ac:43: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
-m4trace:configure.ac:43: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
-m4trace:configure.ac:43: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
-m4trace:configure.ac:43: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
-m4trace:configure.ac:43: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
-m4trace:configure.ac:43: -1- _AC_AM_CONFIG_HEADER_HOOK(["$ac_file"])
-m4trace:configure.ac:43: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:24: -1- _PKG_SHORT_ERRORS_SUPPORTED
+m4trace:configure.ac:24: -1- m4_pattern_allow([^WITH_GTK$])
+m4trace:configure.ac:28: -1- AM_CONDITIONAL([GTK], [test "x$with_gtk" != "xno"])
+m4trace:configure.ac:28: -1- m4_pattern_allow([^GTK_TRUE$])
+m4trace:configure.ac:28: -1- m4_pattern_allow([^GTK_FALSE$])
+m4trace:configure.ac:28: -1- _AM_SUBST_NOTMAKE([GTK_TRUE])
+m4trace:configure.ac:28: -1- _AM_SUBST_NOTMAKE([GTK_FALSE])
+m4trace:configure.ac:34: -1- AM_CONDITIONAL([MONITOR], [test "x$enable_monitor" != "xno"])
+m4trace:configure.ac:34: -1- m4_pattern_allow([^MONITOR_TRUE$])
+m4trace:configure.ac:34: -1- m4_pattern_allow([^MONITOR_FALSE$])
+m4trace:configure.ac:34: -1- _AM_SUBST_NOTMAKE([MONITOR_TRUE])
+m4trace:configure.ac:34: -1- _AM_SUBST_NOTMAKE([MONITOR_FALSE])
+m4trace:configure.ac:42: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:42: -1- m4_pattern_allow([^LTLIBOBJS$])
+m4trace:configure.ac:42: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
+m4trace:configure.ac:42: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
+m4trace:configure.ac:42: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
+m4trace:configure.ac:42: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
+m4trace:configure.ac:42: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
+m4trace:configure.ac:42: -1- _AC_AM_CONFIG_HEADER_HOOK(["$ac_file"])
+m4trace:configure.ac:42: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS

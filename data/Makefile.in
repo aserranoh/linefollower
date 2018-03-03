@@ -91,8 +91,9 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-DIST_COMMON = $(srcdir)/Makefile.am $(am__dist_data_DATA_DIST) \
-	$(dist_sysconf_DATA) $(am__DIST_COMMON)
+DIST_COMMON = $(srcdir)/Makefile.am \
+	$(am__dist_linefollowerdata_DATA_DIST) $(dist_sysconf_DATA) \
+	$(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
@@ -116,7 +117,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__dist_data_DATA_DIST = carpet.data road_across.data \
+am__dist_linefollowerdata_DATA_DIST = carpet.data road_across.data \
 	road_dashed1.data road_dashed2.data road.data road_narrow.data \
 	road_narrowwide.data road_vcross.data road_widenarrow.data \
 	road_zigzag.data wall.data wood.data fragment.sl vertex.sl
@@ -147,8 +148,9 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(datadir)" "$(DESTDIR)$(sysconfdir)"
-DATA = $(dist_data_DATA) $(dist_sysconf_DATA)
+am__installdirs = "$(DESTDIR)$(linefollowerdatadir)" \
+	"$(DESTDIR)$(sysconfdir)"
+DATA = $(dist_linefollowerdata_DATA) $(dist_sysconf_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 am__DIST_COMMON = $(srcdir)/Makefile.in
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -259,6 +261,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 x11_CFLAGS = @x11_CFLAGS@
 x11_LIBS = @x11_LIBS@
+linefollowerdatadir = $(datadir)/linefollower
 
 # Textures for the virtual camera
 textures = carpet.data road_across.data road_dashed1.data road_dashed2.data \
@@ -268,7 +271,7 @@ textures = carpet.data road_across.data road_dashed1.data road_dashed2.data \
 
 # Shaders for GLES2
 shaders = fragment.sl vertex.sl
-@GLES2_TRUE@dist_data_DATA = $(textures) $(shaders)
+@GLES2_TRUE@dist_linefollowerdata_DATA = $(textures) $(shaders)
 
 # Configuration file
 dist_sysconf_DATA = follow.conf
@@ -304,27 +307,27 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-dist_dataDATA: $(dist_data_DATA)
+install-dist_linefollowerdataDATA: $(dist_linefollowerdata_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
+	@list='$(dist_linefollowerdata_DATA)'; test -n "$(linefollowerdatadir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(datadir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(datadir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(linefollowerdatadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(linefollowerdatadir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(datadir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(datadir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(linefollowerdatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(linefollowerdatadir)" || exit $$?; \
 	done
 
-uninstall-dist_dataDATA:
+uninstall-dist_linefollowerdataDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
+	@list='$(dist_linefollowerdata_DATA)'; test -n "$(linefollowerdatadir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(datadir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(linefollowerdatadir)'; $(am__uninstall_files_from_dir)
 install-dist_sysconfDATA: $(dist_sysconf_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_sysconf_DATA)'; test -n "$(sysconfdir)" || list=; \
@@ -387,7 +390,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(datadir)" "$(DESTDIR)$(sysconfdir)"; do \
+	for dir in "$(DESTDIR)$(linefollowerdatadir)" "$(DESTDIR)$(sysconfdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -440,7 +443,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_dataDATA
+install-data-am: install-dist_linefollowerdataDATA
 
 install-dvi: install-dvi-am
 
@@ -484,22 +487,23 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_dataDATA uninstall-dist_sysconfDATA
+uninstall-am: uninstall-dist_linefollowerdataDATA \
+	uninstall-dist_sysconfDATA
 
 .MAKE: install-am install-strip
 
 .PHONY: all all-am check check-am clean clean-generic cscopelist-am \
 	ctags-am distclean distclean-generic distdir dvi dvi-am html \
 	html-am info info-am install install-am install-data \
-	install-data-am install-dist_dataDATA install-dist_sysconfDATA \
-	install-dvi install-dvi-am install-exec install-exec-am \
-	install-html install-html-am install-info install-info-am \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-generic pdf pdf-am ps ps-am tags-am \
-	uninstall uninstall-am uninstall-dist_dataDATA \
-	uninstall-dist_sysconfDATA
+	install-data-am install-dist_linefollowerdataDATA \
+	install-dist_sysconfDATA install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
+	pdf-am ps ps-am tags-am uninstall uninstall-am \
+	uninstall-dist_linefollowerdataDATA uninstall-dist_sysconfDATA
 
 .PRECIOUS: Makefile
 

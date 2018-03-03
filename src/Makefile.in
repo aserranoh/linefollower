@@ -91,13 +91,14 @@ bin_PROGRAMS = follow$(EXEEXT)
 @GLES2_TRUE@am__append_1 = $(virtual_camera_SOURCES)
 @GLES2_TRUE@am__append_2 = ${glesv2_CFLAGS} ${egl_CFLAGS} ${x11_CFLAGS}
 @GLES2_TRUE@am__append_3 = ${glesv2_LIBS} ${egl_LIBS} ${x11_LIBS}
+@MONITOR_TRUE@am__append_4 = follow-monitor
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__dist_bin_SCRIPTS_DIST) \
-	$(am__python_PYTHON_DIST) $(am__DIST_COMMON)
+	$(python_PYTHON) $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
@@ -153,7 +154,7 @@ am__DEPENDENCIES_1 =
 @GLES2_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) \
 @GLES2_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 follow_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
-am__dist_bin_SCRIPTS_DIST = follow-monitor.py
+am__dist_bin_SCRIPTS_DIST = follow-command follow-monitor
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -230,7 +231,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__python_PYTHON_DIST = follow.py
 am__py_compile = PYTHON=$(PYTHON) $(SHELL) $(py_compile)
 am__pep3147_tweak = \
   sed -e 's|\.py$$||' -e 's|[^/]*$$|__pycache__/&.*.py|'
@@ -391,8 +391,8 @@ follow_SOURCES = camera.cpp camera.hpp camparams.hpp command.cpp \
 	utilities.hpp $(am__append_1)
 follow_CFLAGS = ${opencv_CFLAGS} $(am__append_2)
 follow_LDADD = -lrfsgpio -lpthread ${opencv_LIBS} $(am__append_3)
-@PYTHON_TRUE@python_PYTHON = follow.py
-@PYTHON_TRUE@dist_bin_SCRIPTS = follow-monitor.py
+python_PYTHON = follow.py
+dist_bin_SCRIPTS = follow-command $(am__append_4)
 all: all-am
 
 .SUFFIXES:

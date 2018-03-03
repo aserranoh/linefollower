@@ -33,8 +33,10 @@ follow_CFLAGS += ${glesv2_CFLAGS} ${egl_CFLAGS} ${x11_CFLAGS}
 follow_LDADD += ${glesv2_LIBS} ${egl_LIBS} ${x11_LIBS}
 endif
 
-if PYTHON
 python_PYTHON = follow.py
-dist_bin_SCRIPTS = follow-monitor follow-command
+dist_bin_SCRIPTS = follow-command
+
+if MONITOR
+dist_bin_SCRIPTS += follow-monitor
 endif
 

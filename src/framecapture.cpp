@@ -30,7 +30,7 @@ FrameCapture::FrameCapture(const Options& options):
     mutex_frame_req(PTHREAD_MUTEX_INITIALIZER),
     mutex_frame_avail(PTHREAD_MUTEX_INITIALIZER),
     mutex_cam_avail(PTHREAD_MUTEX_INITIALIZER), frame_req(false),
-    frame_avail(false), cam_init_finished(false)
+    frame_avail(false), cam_init_finished(false), stop_req(false)
 {
     // Check the camera angle
     if (cam_params.cam_angle > MAX_CAMANGLE
@@ -41,7 +41,6 @@ FrameCapture::FrameCapture(const Options& options):
     }
     // Create the thread
     pthread_create(&thread, 0, thread_main, this);
-    pthread_detach(thread);
     // Wait until the camera is initialized
     pthread_mutex_lock(&mutex_cam_avail);
     if (!cam_init_finished) {
@@ -56,7 +55,9 @@ FrameCapture::FrameCapture(const Options& options):
 FrameCapture::~FrameCapture()
 {
     if (camera) {
-        pthread_cancel(thread);
+        stop_req = true;
+        // Do a last request to force the main loop to check the loop condition
+        fetch();
         pthread_join(thread, 0);
         delete camera;
     }
@@ -130,7 +131,7 @@ FrameCapture::run()
         pthread_cond_signal(&cond_cam_avail);
 
         // Do the main loop
-        while (1) {
+        while (!stop_req) {
             // Wait until there's a request to capture a frame
             pthread_mutex_lock(&mutex_frame_req);
             if (!frame_req) {

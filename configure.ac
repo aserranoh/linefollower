@@ -5,6 +5,7 @@ AM_CPPFLAGS="-DSYSCONFDIR="'\"$(sysconfdir)\"'" -DDATADIR="'\"$(datadir)\"'
 AC_SUBST(AM_CPPFLAGS)
 
 PKG_CHECK_MODULES([opencv], [opencv])
+AM_PATH_PYTHON
 
 # Use GLES2 (Virtual Camera)
 AC_ARG_WITH([gles2],
@@ -26,13 +27,11 @@ AS_IF([test "x$with_gtk" != "xno"], [
 ])
 AM_CONDITIONAL([GTK], [test "x$with_gtk" != "xno"])
 
-# Use Python
-AC_ARG_WITH([python],
-    AS_HELP_STRING([--with-python], [generate a python script and module]))
-AS_IF([test "x$with_python" != "xno"], [
-    AM_PATH_PYTHON
-])
-AM_CONDITIONAL([PYTHON], [test "x$with_python" != "xno"])
+# Install monitor
+AC_ARG_ENABLE([monitor],
+    AS_HELP_STRING([--enable-monitor], [Install a monitor for the robot]))
+AS_IF([test "x$enable_monitor" != "xno"], [])
+AM_CONDITIONAL([MONITOR], [test "x$enable_monitor" != "xno"])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
@@ -41,3 +40,4 @@ AC_CONFIG_FILES([
    data/Makefile
 ])
 AC_OUTPUT
+

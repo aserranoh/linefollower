@@ -63,6 +63,9 @@ class FrameCapture {
         // true if the camera initialization has concluded
         bool cam_init_finished;
 
+        // Stop the capturing thread
+        bool stop_req;
+
         // Initialize the camera
         void init_camera();
 

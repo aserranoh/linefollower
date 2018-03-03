@@ -44,9 +44,9 @@ const char* LineFollowerApp::options_default[] = {
     "PathFinder", "SSFA",
     "Port", "10101",
     "InactivityTimeout", "300",
-    "VertexShader", DATADIR "/vertex.sl",
-    "FragmentShader", DATADIR "/fragment.sl",
-    "TexturesPath", DATADIR,
+    "VertexShader", DATADIR "/" PACKAGE_NAME "/vertex.sl",
+    "FragmentShader", DATADIR "/" PACKAGE_NAME "/fragment.sl",
+    "TexturesPath", DATADIR "/" PACKAGE_NAME,
     "RoadDelta", "15.0",
     NULL, NULL,
 };
