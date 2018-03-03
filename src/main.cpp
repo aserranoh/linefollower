@@ -88,6 +88,7 @@ parse_args(int argc, char **argv)
         {"version", no_argument, 0, 'v'},
         {"config", required_argument, 0, 'c'},
         {"daemonize", no_argument, 0, 'd'},
+        {"pidfile", required_argument, 0, 'p'},
         {0, 0, 0, 0}
     };
     int o;

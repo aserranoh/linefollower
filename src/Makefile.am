@@ -35,6 +35,6 @@ endif
 
 if PYTHON
 python_PYTHON = follow.py
-dist_bin_SCRIPTS = follow-monitor.py
+dist_bin_SCRIPTS = follow-monitor follow-command
 endif
 

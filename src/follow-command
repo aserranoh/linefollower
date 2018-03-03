@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+
+'''Send commands to a line follower robot.
+
+Copyright 2018 Antonio Serrano Hernandez
+
+This file is part of linefollower.
+
+linefollower is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+linefollower is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with linefollower; see the file COPYING.  If not, see
+<http://www.gnu.org/licenses/>.
+'''
+
+import argparse
+
+import follow
+
+__script__ = 'follow-command'
+__author__ = 'Antonio Serrano Hernandez'
+__copyright__ = 'Copyright (C) 2018 Antonio Serrano Hernandez'
+__version__ = '0.1'
+__license__ = 'GPL'
+__maintainer__ = 'Antonio Serrano Hernandez'
+__email__ = 'toni.serranoh@gmail.com'
+__status__ = 'Development'
+__homepage__ = 'https://github.com/aserranoh/linefollower'
+
+VERSION_STRING = '''\
+%(prog)s (linefollower) {version}
+{copyright}
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.\
+'''.format(version=__version__, copyright=__copyright__)
+
+HELP_EPILOG = '''\
+Report bugs to: {email}
+linefollower home page: {homepage}
+'''.format(email=__email__, homepage=__homepage__)
+
+DEFAULT_HOST = '127.0.0.1'
+
+def main():
+    # Command line arguments description
+    parser = argparse.ArgumentParser(prog=__script__, epilog=HELP_EPILOG,
+        formatter_class=argparse.RawTextHelpFormatter,
+        description='Send commands to a line follower robots.')
+    parser.add_argument('--version', action='version', version=VERSION_STRING)
+    parser.add_argument('command', help='command to send (start|stop)')
+    parser.add_argument('host', nargs='?',
+        default='{}:{}'.format(DEFAULT_HOST, follow.DEFAULT_PORT),
+        help='host where to send the command')
+    args = parser.parse_args()
+
+    # Get address and port
+    host, _, port = args.host.partition(':')
+    if port == '':
+        port = follow.DEFAULT_PORT
+    else:
+        port = int(port)
+
+    # Send the command
+    f = follow.Follower((host, port))
+    if args.command == 'start':
+        f.start()
+    elif args.command == 'stop':
+        f.stop()
+    else:
+        print('wrong command')
+
+if __name__ == '__main__':
+    main()
+

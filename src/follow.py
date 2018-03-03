@@ -28,7 +28,7 @@ _CMD_MOVE = 6
 
 # Devaults values for scan function
 _DEFAULT_TIMEOUT = 5
-_DEFAULT_PORT = 10101
+DEFAULT_PORT = 10101
 
 # Constants to decode the data event
 _FLOATS_PER_SECTION = 4
@@ -261,7 +261,7 @@ class Follower(object):
         '''Send a unsubscribe command to the line follower robot.'''
         self.sock.send(_CMD_UNSUBSCRIBE)
 
-def scan(hosts, port=_DEFAULT_PORT, timeout=_DEFAULT_TIMEOUT):
+def scan(hosts, port=DEFAULT_PORT, timeout=_DEFAULT_TIMEOUT):
     '''Send an echo command to a list of hosts to determine who is listening.
 
     Parameters:

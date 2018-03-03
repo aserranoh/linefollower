@@ -1,11 +1,55 @@
 #!/usr/bin/env python
 
+'''Monitor a line follower robot.
+
+Copyright 2018 Antonio Serrano Hernandez
+
+This file is part of linefollower.
+
+linefollower is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+linefollower is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with linefollower; see the file COPYING.  If not, see
+<http://www.gnu.org/licenses/>.
+'''
+
 import argparse
 import ipaddress
 import pygame
 import time
 
 import follow
+
+__script__ = 'follow-monitor'
+__author__ = 'Antonio Serrano Hernandez'
+__copyright__ = 'Copyright (C) 2018 Antonio Serrano Hernandez'
+__version__ = '0.1'
+__license__ = 'GPL'
+__maintainer__ = 'Antonio Serrano Hernandez'
+__email__ = 'toni.serranoh@gmail.com'
+__status__ = 'Development'
+__homepage__ = 'https://github.com/aserranoh/linefollower'
+
+VERSION_STRING = '''\
+%(prog)s (linefollower) {version}
+{copyright}
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.\
+'''.format(version=__version__, copyright=__copyright__)
+
+HELP_EPILOG = '''\
+Report bugs to: {email}
+linefollower home page: {homepage}
+'''.format(email=__email__, homepage=__homepage__)
 
 # Window's size
 WINDOW_WIDTH = 800
@@ -304,8 +348,10 @@ class FollowMonitorMain(object):
 # Main entry point
 if __name__ == '__main__':
     # Command line arguments description
-    parser = argparse.ArgumentParser(
-        description='Communication with line follower robots.')
+    parser = argparse.ArgumentParser(prog=__script__, epilog=HELP_EPILOG,
+        formatter_class=argparse.RawTextHelpFormatter,
+        description='Monitor a line follower robot.')
+    parser.add_argument('--version', action='version', version=VERSION_STRING)
     parser.add_argument('network', type=ipaddress.IPv4Network,
         help='network to scan for line follower robots')
     args = parser.parse_args()
