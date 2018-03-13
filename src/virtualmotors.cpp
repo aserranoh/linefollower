@@ -10,11 +10,6 @@
 
 #define MIN_TURN    0.001
 
-// Transform an element of struct timespec to a double. Converting the struct
-// timespec to a double is useful to substract them and calculate time deltas.
-#define TS_TO_DOUBLE(ts)    ((double)ts.tv_sec \
-                            + (double)(ts.tv_nsec)/1000000000.0)
-
 using namespace utilities;
 
 /* Constructor.
@@ -48,8 +43,8 @@ VirtualMotors::move(float speed, float turn)
 
     // Compute the elapsed time
     clock_gettime(CLOCK_MONOTONIC, &t_current);
-    t0 = TS_TO_DOUBLE(t_prev);
-    t1 = TS_TO_DOUBLE(t_current);
+    t0 = timespec2double(t_prev);
+    t1 = timespec2double(t_current);
     dt = t1 - t0;
     t_prev = t_current;
 

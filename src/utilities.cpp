@@ -16,48 +16,18 @@
 
 #define MAX_STATIC_READ     1024
 
-// Transform an element of struct timespec to a double. Converting the struct
-// timespec to a double is useful to substract them and calculate time deltas.
-#define TS_TO_DOUBLE(ts)    ((double)ts.tv_sec \
-                            + (double)(ts.tv_nsec)/1000000000.0)
-
 // Variables to calculate the fps
 static struct timespec t_prev = {0, 0}, t_current;
 static float total_time = 0.0;
 static unsigned int frames = 0;
 
-/* Calculate the absolute value of the elements in an array.
-   Parameters:
-     * src: the input array.
-     * size: the size of the input array.
-     * dst: the destination array.
-*/
-void
-utilities::abs(int *src, size_t size, int *dst)
-{
-    for (size_t i = 0; i < size; i++) {
-        dst[i] = (src[i] >= 0) ? src[i] : -src[i];
-    }
-}
-
-/* Compute the distance between to colors.
-   Parameters:
-     * a: first color.
-     * b: second color.
-*/
-unsigned int
-utilities::colordistance(const Scalar& a, const Scalar& b)
-{
-    int d0 = a[0] - b[0], d1 = a[1] - b[1], d2 = a[2] - b[2];
-    return d0*d0 + d1*d1 + d2*d2;
-}
-
 /* Calculate the derivative of an array.
    Parameters:
      * x: the array.
-     * size: size of the vector.
-     * dx: the pointer where to put the result (must be previously allocated
-           with at least size bytes).
+     * size: size of the x array.
+     * dx: the pointer where to put the result. It must be previously
+         allocated with at least size + 1 bytes (a sentinel value is added at
+         the end). The first and the last positions of dx are always 0 at exit.
 */
 void
 utilities::derivative(uchar *x, size_t size, int *dx)
@@ -66,20 +36,8 @@ utilities::derivative(uchar *x, size_t size, int *dx)
     for (size_t i = 1; i < size; i++) {
         dx[i] = (int)(x[i]) - (int)(x[i - 1]);
     }
-}
-
-/* Set to zero all the elements in the array lower than value.
-   Parameters:
-     * src: the input array.
-     * value: the threshold value.
-     * dst: the output array.
-*/
-void
-utilities::filterlt(int *src, size_t size, int value, int *dst)
-{
-    for (size_t i = 0; i < size; i++) {
-        dst[i] = (src[i] >= value) ? src[i] : 0;
-    }
+    // Sentinel value
+    dx[size] = 0;
 }
 
 /* Load a file into a memory buffer.
@@ -119,61 +77,26 @@ utilities::loadfile(const char *filename)
     return buf;
 }
 
-/* Find the local maximums of the non-zero contiguous values in an array.
+/* Find the absolute minimum and maximum of an array.
    Parameters:
      * src: the input array.
-     * value: the threshold value.
-     * max_points: maximum number of local maximums to be found.
-     * max: the list of indexes of the local maximums in the array.
-   Return the number of local maximums found.
-*/
-size_t
-utilities::localmax(int *src, size_t size, size_t max_points, int* max)
-{
-    int localmax = INT_MIN;
-    size_t localmax_pos = 0;
-    size_t num = 0;
-
-    if (!max_points) {
-        return 0;
-    }
-    for (size_t i = 0; i < size; i++) {
-        if (src[i] > 0) {
-            if (src[i] > localmax) {
-                localmax = src[i];
-                localmax_pos = i;
-            }
-        } else if (localmax_pos > 0) {
-            max[num] = localmax_pos;
-            num++;
-            if (num >= max_points) {
-                break;
-            }
-            localmax = INT_MIN;
-            localmax_pos = 0;
-        }
-    }
-    return num;
-}
-
-/* Compute the mean color of an array of pixels.
-   Parameters:
-     * ptr: pointer to a pixel in a Mat.
-     * size: number of pixels to use for the mean.
-     * channels: number of color channels.
-     * mean_color: output mean color.
+     * size: size of the src array.
+     * min: position of the minimum in the array src.
+     * max: position of the maximum in the array src.
 */
 void
-utilities::meancolor(
-    uchar *ptr, size_t size, size_t channels, Scalar& mean_color)
+utilities::minmax(int *src, size_t size, int &min, int &max)
 {
-    unsigned int b = 0, g = 0, r = 0;
-    for (uchar *p = ptr; p < ptr + (size * channels); p += channels) {
-        b += p[0];
-        g += p[1];
-        r += p[2];
+    int minval = INT_MAX, maxval = INT_MIN;
+
+    for (int i = 0; i < size; i++) {
+        if (src[i] < minval) {
+            minval = src[min = i];
+        }
+        if (src[i] > maxval) {
+            maxval = src[max = i];
+        }
     }
-    mean_color = Scalar(b/size, g/size, r/size);
 }
 
 /* Plot a 1D vector.
@@ -227,8 +150,8 @@ utilities::printfps(unsigned int nframes)
     } else {
         // Compute the elapsed time and increment the frames counter
         clock_gettime(CLOCK_MONOTONIC, &t_current);
-        t0 = TS_TO_DOUBLE(t_prev);
-        t1 = TS_TO_DOUBLE(t_current);
+        t0 = timespec2double(t_prev);
+        t1 = timespec2double(t_current);
         deltatime = t1 - t0;
         t_prev = t_current;
         total_time += deltatime;

@@ -9,12 +9,11 @@
 #include "camparams.hpp"
 #include "command.hpp"
 #include "framecapture.hpp"
+#include "line.hpp"
+#include "linetracker.hpp"
 #include "motors.hpp"
 #include "options.hpp"
-#include "pathfinder.hpp"
 #include "pilot.hpp"
-#include "road.hpp"
-#include "roadfinder.hpp"
 #include "virtualtrack.hpp"
 
 using namespace cv;
@@ -54,13 +53,9 @@ class LineFollowerApp {
         Motors *virtual_motors;
         Motors *real_motors;
 
-        // The road finder instance and the road object
-        RoadFinder *road_finder;
-        Road road;
-
-        // The path finder instance and the path object
-        PathFinder *path_finder;
-        vector<glm::vec2> path;
+        // The line tracker instance and the line object
+        LineTracker *line_tracker;
+        Line line;
 
         // The PID modules that pilot the motors (one for the real and one
         // for the virtual)
@@ -91,17 +86,14 @@ class LineFollowerApp {
         // Create the motors
         void create_motors();
 
-        // Create the path finder instance
-        void create_path_finder();
+        // Create the line tracker instance
+        void create_line_tracker();
 
-        // Create the road finder instance
-        void create_road_finder();
-
-        // Draw the path
-        void draw_path(Mat& frame);
-
-        // Draw the road
-        void draw_road(Mat& frame);
+        /* Draw the line.
+           Parameters:
+             * frame: the destination frame of the drawing.
+        */
+        void draw_line(Mat& frame);
 
         // Get the inputs: camera frame
         void inputs(Mat& frame);

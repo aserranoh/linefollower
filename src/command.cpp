@@ -10,17 +10,14 @@
 
 #include "followexception.hpp"
 #include "log.hpp"
+#include "utilities.hpp"
 
 #define EVT_ECHO_LENGTH 64
 #define MAX_EVT_LENGTH  (sizeof(float)*4 + 1)
 #define MAX_DATA_LENGTH 512
-#define MAX_SECTIONS    26
-#define MAX_ROAD_POINTS 8
+#define MAX_POINTS      32
 
-// Transform an element of struct timespec to a double. Converting the struct
-// timespec to a double is useful to substract them and calculate time deltas.
-#define TS_TO_DOUBLE(ts)    ((double)ts.tv_sec \
-                            + (double)(ts.tv_nsec)/1000000000.0)
+using namespace utilities;
 
 /* Encode a float to be sent through the network.
    Parameters:
@@ -183,41 +180,28 @@ Command::get_command(msg_t& command)
     return 1;
 }
 
-/* Send the road and the path data to the subscribers.
+/* Send the tracked line to the subscriptors.
    Parameters:
-     * road: the road.
-     * path: the path.
+     * line: the line.
 */
 void
-Command::send_data(const Road& road, vector<glm::vec2>& path)
+Command::send_data(const Line& line)
 {
-    vector<glm::vec2>::iterator it;
     char buf[MAX_DATA_LENGTH];
     char *ptr;
 
     // Code of event
     buf[0] = EVT_DATA;
-    // Number of sections
-    buf[1] = (unsigned char)road.get_size();
-    // Number of points in path
-    buf[2] = (unsigned char)path.size();
-    // Fill the buffer with the road sections (up to MAX_SECTIONS)
-    ptr = buf + 3*sizeof(unsigned char);
-    for (size_t i = 0; i < road.get_size() && i < MAX_SECTIONS; i++) {
-        // X left
-        encf(road.get_section(i).left[0], ptr);
-        // X line
-        encf(road.get_section(i).line[0], ptr + sizeof(float));
-        // X right
-        encf(road.get_section(i).right[0], ptr + sizeof(float)*2);
+    // Number of points in the line
+    buf[1] = (unsigned char)line.size();
+    // Fill the buffer with the line points (up to MAX_POINTS)
+    ptr = buf + 2*sizeof(unsigned char);
+    for (size_t i = 0; i < line.size() && i < MAX_POINTS; i++) {
+        const line_point_t& p = line.get_point(i);
+        // X
+        encf(p.x, ptr);
         // Y
-        encf(road.get_section(i).left[1], ptr + sizeof(float)*3);
-        ptr += 4*sizeof(float);
-    }
-    // Fill the buffer with the path points (up to MAX_ROAD_POINTS)
-    for (it = path.begin(); it != path.end(); it++) {
-        encf((*it)[0], ptr);
-        encf((*it)[1], ptr + sizeof(float));
+        encf(p.y, ptr + sizeof(float));
         ptr += 2*sizeof(float);
     }
     // Send the data to all the subscribers
@@ -288,8 +272,8 @@ Command::remove_subscriptors_timeout()
     double ts, cur;
 
     while (it != subscriptors.end()) {
-        ts = TS_TO_DOUBLE(it->timestamp);
-        cur = TS_TO_DOUBLE(current_timestamp);
+        ts = timespec2double(it->timestamp);
+        cur = timespec2double(current_timestamp);
         if (cur - ts > inactivity_timeout) {
             // Timeout reached, unsubscribe
             unsubscribe_iterator(it++);

@@ -6,8 +6,8 @@
 #include <list>
 #include <vector>
 
+#include "line.hpp"
 #include "options.hpp"
-#include "road.hpp"
 
 // Enumeration of message types
 typedef enum {
@@ -82,12 +82,11 @@ class Command {
         */
         int get_command(msg_t& command);
 
-        /* Send the road and the path data to the subscribers.
+        /* Send the tracked line to the subscriptors.
            Parameters:
-             * road: the road.
-             * path: the path.
+             * line: the line.
         */
-        void send_data(const Road& road, vector<glm::vec2>& path);
+        void send_data(const Line& line);
 
         /* Send an event to the subscriptors.
            Parameters:

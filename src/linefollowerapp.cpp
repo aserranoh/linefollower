@@ -4,26 +4,22 @@
 #include "opencv2/opencv.hpp"
 
 #include "config.h"
-#include "differentialroadfinder.hpp"
 #include "followexception.hpp"
 #include "gpiomotors.hpp"
 #include "linefollowerapp.hpp"
 #include "log.hpp"
 #include "realcamera.hpp"
-#include "ssfapathfinder.hpp"
+#include "robotanicuslinetracker.hpp"
 #include "utilities.hpp"
 
 #include "virtualmotors.hpp"
 
 #ifdef WITH_GTK
 
-#define ROAD_SCALE  4
-#define X_TO_SCR(x) (x * ROAD_SCALE + frame_width/2)
-#define Y_TO_SCR(y) (frame_height - y * ROAD_SCALE)
-#define ROAD_COLOR  Scalar(255, 0, 0)
+#define LINE_SCALE  4
+#define X_TO_SCR(x) (x * LINE_SCALE + frame_width/2)
+#define Y_TO_SCR(y) (frame_height - y * LINE_SCALE)
 #define LINE_COLOR  Scalar(0, 255, 255)
-#define GOAL_COLOR  Scalar(0, 0, 255)
-#define PATH_COLOR  Scalar(0, 255, 0)
 
 #endif
 
@@ -36,18 +32,12 @@ const char* LineFollowerApp::options_default[] = {
     "VideoCaptureIndex", "0",
     "Motors", "real",
     "RealMotorsType", "gpio",
-    "RoadFinder", "differential",
-    "ScanLines", "16",
-    "MinDerivative", "30",
-    "ColorDistanceThreshold", "1200",
-    "ScanLinesFrame", "world",
-    "PathFinder", "SSFA",
+    "LineTracker", "robotanicus",
     "Port", "10101",
     "InactivityTimeout", "300",
     "VertexShader", DATADIR "/" PACKAGE_NAME "/vertex.sl",
     "FragmentShader", DATADIR "/" PACKAGE_NAME "/fragment.sl",
     "TexturesPath", DATADIR "/" PACKAGE_NAME,
-    "RoadDelta", "15.0",
     NULL, NULL,
 };
 
@@ -60,8 +50,7 @@ LineFollowerApp::LineFollowerApp(const char *options_file):
     has_display(getenv("DISPLAY") != NULL)
 {
     create_motors();
-    create_road_finder();
-    create_path_finder();
+    create_line_tracker();
 }
 
 LineFollowerApp::~LineFollowerApp()
@@ -145,71 +134,32 @@ LineFollowerApp::create_motors()
     }
 }
 
-// Create the path finder instance
+// Create the line tracker instance
 void
-LineFollowerApp::create_path_finder()
+LineFollowerApp::create_line_tracker()
 {
-    string path_finder_type = options.get_string("PathFinder");
-    if (path_finder_type == "SSFA") {
-        path_finder = new SSFAPathFinder();
+    string line_tracker_type = options.get_string("LineTracker");
+    if (line_tracker_type == "robotanicus") {
+        line_tracker = new RobotanicusLineTracker(options);
     } else {
-        throw FollowException("unknown path finder type");
-    }
-}
-
-// Create the road finder instance
-void
-LineFollowerApp::create_road_finder()
-{
-    string road_finder_type = options.get_string("RoadFinder");
-    if (road_finder_type == "differential") {
-        road_finder = new DifferentialRoadFinder(options);
-    } else {
-        throw FollowException("unknown road finder type");
+        throw FollowException("unknown line tracker type");
     }
 }
 
 // These functions are only defined if there's support for gtk
 #ifdef WITH_GTK
 
-// Draw the path
+/* Draw the line.
+   Parameters:
+     * frame: the destination frame of the drawing.
+*/
 void
-LineFollowerApp::draw_path(Mat& frame)
+LineFollowerApp::draw_line(Mat& frame)
 {
-    glm::vec2 p0, p1;
-
-    for (size_t i = 1; i < path.size(); i++) {
-        p0 = path[i - 1];
-        p1 = path[i];
-        line(frame, Point(X_TO_SCR(p0[0]), Y_TO_SCR(p0[1])),
-            Point(X_TO_SCR(p1[0]), Y_TO_SCR(p1[1])), PATH_COLOR);
+    for (size_t i = 0; i < line.size(); i++) {
+        const line_point_t& p = line.get_point(i);
+        circle(frame, Point(X_TO_SCR(p.x), Y_TO_SCR(p.y)), 3, LINE_COLOR, 2);
     }
-}
-
-// Draw the road
-void
-LineFollowerApp::draw_road(Mat& frame)
-{
-    road_section_t s;
-
-    for (size_t i = 0; i < road.get_size(); i++) {
-        s = road.get_section(i);
-        // Draw the left point of the current section
-        circle(frame, Point(X_TO_SCR(s.left[0]), Y_TO_SCR(s.left[1])), 3,
-            ROAD_COLOR, 2);
-        // Draw the right point of the current section
-        circle(frame, Point(X_TO_SCR(s.right[0]), Y_TO_SCR(s.right[1])), 3,
-            ROAD_COLOR, 2);
-        // Draw the line point of the current section
-        if (s.line[0] != FLT_MAX) {
-            circle(frame, Point(X_TO_SCR(s.line[0]), Y_TO_SCR(s.line[1])), 3,
-                LINE_COLOR, 2);
-        }
-    }
-    // Draw the goal
-    glm::vec2 goal = road.get_goal();
-    circle(frame, Point(X_TO_SCR(goal[0]), Y_TO_SCR(goal[1])), 3,
-        GOAL_COLOR, 2);
 }
 
 #endif
@@ -251,15 +201,11 @@ LineFollowerApp::move_motors()
 
     if (following) {
         // Autonomous mode, let pilot do its thing.
-        // The input to the pilot is the angle between the current direction
-        // and the target direction. We use the approximation x ~= sin(x) near
-        // 0 and calculate the sin by normalizing the direction vector
-        // TODO: See why point 0 and point 1 are the same
-        glm::vec2 v = glm::normalize(path[2] - path[0]);
+        const line_point_t &p = line.get_point(0);
         if (virtual_motors)
-            virtual_motors_pilot.set_angle(-v[0]);
+            virtual_motors_pilot.set_angle(-p.x);
         if (real_motors)
-            real_motors_pilot.set_angle(-v[0]);
+            real_motors_pilot.set_angle(-p.x);
     } else {
         // Manual mode, move the motors the given amount in the command and
         // send back an event of confirmation
@@ -289,20 +235,17 @@ LineFollowerApp::outputs(Mat& frame)
 {
 #ifdef WITH_GTK
     if (has_display) {
-        draw_road(frame);
-        draw_path(frame);
+        draw_line(frame);
         // This is necessary to show the window
         cv::waitKey(1);
         imshow("frame", frame);
     }
 #endif
-
     // Print the fps
     printfps(1);
-
     move_motors();
-    // Send the road and path to the possible subscriptors
-    command.send_data(road, path);
+    // Send the tracked line to the possible subscriptors
+    command.send_data(line);
 }
 
 /* Process the current frame.
@@ -312,8 +255,10 @@ LineFollowerApp::outputs(Mat& frame)
 void
 LineFollowerApp::processing(Mat& frame)
 {
-    road_finder->find(frame, road);
-    path_finder->find(road, path);
+    // Track the line
+    line_tracker->track(frame, line);
+    // Find the path to follow
+    //path_finder->find(road, path);
 }
 
 // Start the motors (switch to autonomous mode)

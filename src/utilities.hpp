@@ -2,29 +2,27 @@
 #ifndef UTILITIES_HPP
 #define UTILITIES_HPP
 
+#include <math.h>
 #include "opencv2/opencv.hpp"
 #include <string>
+
+#define NS_PER_S    1000000000.0
 
 using namespace cv;
 using namespace std;
 
 namespace utilities {
 
-    // Calculate the absolute value of the elements in an array.
-    void abs(int *src, size_t size, int *dst);
-
-    /* Compute the distance between to colors.
+    /* Calculate the derivative of an array.
        Parameters:
-         * a: first color.
-         * b: second color.
+         * x: the array.
+         * size: size of the x array.
+         * dx: the pointer where to put the result. It must be previously
+             allocated with at least size + 1 bytes (a sentinel value is added
+             at the end). The first and the last positions of dx are always 0
+             at exit.
     */
-    unsigned int colordistance(const Scalar& a, const Scalar& b);
-
-    // Calculate the derivative of an array.
     void derivative(uchar *x, size_t size, int *dx);
-
-    // Set to zero all the elements in the array lower than value.
-    void filterlt(int *src, size_t size, int value, int *dst);
 
     /* Load a file into a memory buffer.
        This memory buffer must be freed by the user.
@@ -33,18 +31,14 @@ namespace utilities {
     */
     const char *loadfile(const char *filename);
 
-    // Find the local maximums of the non-zero contiguous values in an array.
-    size_t localmax(int *src, size_t size, size_t max_points, int* max);
-
-    /* Compute the mean color of an array of pixels.
+    /* Find the absolute minimum and maximum of an array.
        Parameters:
-         * ptr: pointer to a pixel in a Mat.
-         * size: number of pixels to use for the mean.
-         * channels: number of color channels.
-         * mean_color: output mean color.
+         * src: the input array.
+         * size: size of the src array.
+         * min: position of the minimum in the array src.
+         * max: position of the maximum in the array src.
     */
-    void meancolor(
-        uchar *ptr, size_t size, size_t channels, Scalar& mean_color);
+    void minmax(int *src, size_t size, int &min, int &max);
 
     // Plot a 1D vector.
     void plot(int *x, size_t size, int scaley, Mat& plt);
@@ -54,6 +48,24 @@ namespace utilities {
          * nframes: number of frames elapsed since the last call to printfps.
     */
     void printfps(unsigned int nframes);
+
+    /* Convert the struct timespec to a double timestamp.
+       Parameters:
+         * ts: the timespec struct.
+    */
+    inline double timespec2double(struct timespec ts) {
+        return (double)ts.tv_sec + (double)(ts.tv_nsec)/NS_PER_S;
+    }
+
+    // Convert degrees to radians
+    inline float to_deg(float deg) {
+        return deg * 180.0 / M_PI;
+    }
+
+    // Convert degrees to radians
+    inline float to_rad(float deg) {
+        return deg * M_PI / 180.0;
+    }
 
 }
 

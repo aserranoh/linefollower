@@ -107,30 +107,30 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(pythondir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__follow_SOURCES_DIST = camera.cpp camera.hpp camparams.hpp \
-	command.cpp command.hpp daemon.h differentialroadfinder.cpp \
-	differentialroadfinder.hpp followexception.hpp \
+	command.cpp command.hpp daemon.h followexception.hpp \
 	framecapture.cpp framecapture.hpp gpiomotors.cpp \
-	gpiomotors.hpp linefollowerapp.cpp linefollowerapp.hpp log.cpp \
-	log.hpp main.cpp motors.cpp motors.hpp options.cpp options.hpp \
-	pathfinder.hpp pilot.cpp pilot.hpp realcamera.cpp \
-	realcamera.hpp road.cpp roadfinder.hpp road.hpp \
-	ssfapathfinder.cpp ssfapathfinder.hpp utilities.cpp \
-	utilities.hpp acrossroadsegment.cpp acrossroadsegment.hpp \
-	dashedline1segment.cpp dashedline1segment.hpp \
-	dashedline2segment.cpp dashedline2segment.hpp \
-	doubleturnleftsegment.cpp doubleturnleftsegment.hpp \
-	doubleturnrightsegment.cpp doubleturnrightsegment.hpp \
-	doubleturnsegment.cpp doubleturnsegment.hpp gl.hpp \
-	narrowsegment.cpp narrowsegment.hpp narrowwidesegment.cpp \
-	narrowwidesegment.hpp squaresegment.cpp squaresegment.hpp \
-	straightsegment.cpp straightsegment.hpp tracksegment.cpp \
-	tracksegment.hpp turnleftsegment.cpp turnleftsegment.hpp \
-	turnrightsegment.cpp turnrightsegment.hpp turnsegment.cpp \
-	turnsegment.hpp vcrossroadsegment.cpp vcrossroadsegment.hpp \
-	virtualcamera.cpp virtualcamera.hpp virtualmotors.cpp \
-	virtualmotors.hpp virtualtrack.cpp virtualtrack.hpp \
-	widenarrowsegment.cpp widenarrowsegment.hpp \
-	zigzaglinesegment.cpp zigzaglinesegment.hpp
+	gpiomotors.hpp line.hpp line.cpp linefollowerapp.cpp \
+	linefollowerapp.hpp linetracker.hpp log.cpp log.hpp main.cpp \
+	motors.cpp motors.hpp options.cpp options.hpp pilot.cpp \
+	pilot.hpp realcamera.cpp realcamera.hpp \
+	robotanicuslinetracker.cpp robotanicuslinetracker.hpp \
+	utilities.cpp utilities.hpp acrossroadsegment.cpp \
+	acrossroadsegment.hpp dashedline1segment.cpp \
+	dashedline1segment.hpp dashedline2segment.cpp \
+	dashedline2segment.hpp doubleturnleftsegment.cpp \
+	doubleturnleftsegment.hpp doubleturnrightsegment.cpp \
+	doubleturnrightsegment.hpp doubleturnsegment.cpp \
+	doubleturnsegment.hpp gl.hpp narrowsegment.cpp \
+	narrowsegment.hpp narrowwidesegment.cpp narrowwidesegment.hpp \
+	squaresegment.cpp squaresegment.hpp straightsegment.cpp \
+	straightsegment.hpp tracksegment.cpp tracksegment.hpp \
+	turnleftsegment.cpp turnleftsegment.hpp turnrightsegment.cpp \
+	turnrightsegment.hpp turnsegment.cpp turnsegment.hpp \
+	vcrossroadsegment.cpp vcrossroadsegment.hpp virtualcamera.cpp \
+	virtualcamera.hpp virtualmotors.cpp virtualmotors.hpp \
+	virtualtrack.cpp virtualtrack.hpp widenarrowsegment.cpp \
+	widenarrowsegment.hpp zigzaglinesegment.cpp \
+	zigzaglinesegment.hpp
 am__objects_1 = acrossroadsegment.$(OBJEXT) \
 	dashedline1segment.$(OBJEXT) dashedline2segment.$(OBJEXT) \
 	doubleturnleftsegment.$(OBJEXT) \
@@ -144,11 +144,11 @@ am__objects_1 = acrossroadsegment.$(OBJEXT) \
 	widenarrowsegment.$(OBJEXT) zigzaglinesegment.$(OBJEXT)
 @GLES2_TRUE@am__objects_2 = $(am__objects_1)
 am_follow_OBJECTS = camera.$(OBJEXT) command.$(OBJEXT) \
-	differentialroadfinder.$(OBJEXT) framecapture.$(OBJEXT) \
-	gpiomotors.$(OBJEXT) linefollowerapp.$(OBJEXT) log.$(OBJEXT) \
-	main.$(OBJEXT) motors.$(OBJEXT) options.$(OBJEXT) \
-	pilot.$(OBJEXT) realcamera.$(OBJEXT) road.$(OBJEXT) \
-	ssfapathfinder.$(OBJEXT) utilities.$(OBJEXT) $(am__objects_2)
+	framecapture.$(OBJEXT) gpiomotors.$(OBJEXT) line.$(OBJEXT) \
+	linefollowerapp.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) \
+	motors.$(OBJEXT) options.$(OBJEXT) pilot.$(OBJEXT) \
+	realcamera.$(OBJEXT) robotanicuslinetracker.$(OBJEXT) \
+	utilities.$(OBJEXT) $(am__objects_2)
 follow_OBJECTS = $(am_follow_OBJECTS)
 am__DEPENDENCIES_1 =
 @GLES2_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) \
@@ -380,15 +380,14 @@ virtual_camera_SOURCES = acrossroadsegment.cpp acrossroadsegment.hpp \
     zigzaglinesegment.hpp
 
 follow_SOURCES = camera.cpp camera.hpp camparams.hpp command.cpp \
-	command.hpp daemon.h differentialroadfinder.cpp \
-	differentialroadfinder.hpp followexception.hpp \
-	framecapture.cpp framecapture.hpp gpiomotors.cpp \
-	gpiomotors.hpp linefollowerapp.cpp linefollowerapp.hpp log.cpp \
-	log.hpp main.cpp motors.cpp motors.hpp options.cpp options.hpp \
-	pathfinder.hpp pilot.cpp pilot.hpp realcamera.cpp \
-	realcamera.hpp road.cpp roadfinder.hpp road.hpp \
-	ssfapathfinder.cpp ssfapathfinder.hpp utilities.cpp \
-	utilities.hpp $(am__append_1)
+	command.hpp daemon.h followexception.hpp framecapture.cpp \
+	framecapture.hpp gpiomotors.cpp gpiomotors.hpp line.hpp \
+	line.cpp linefollowerapp.cpp linefollowerapp.hpp \
+	linetracker.hpp log.cpp log.hpp main.cpp motors.cpp motors.hpp \
+	options.cpp options.hpp pilot.cpp pilot.hpp realcamera.cpp \
+	realcamera.hpp robotanicuslinetracker.cpp \
+	robotanicuslinetracker.hpp utilities.cpp utilities.hpp \
+	$(am__append_1)
 follow_CFLAGS = ${opencv_CFLAGS} $(am__append_2)
 follow_LDADD = -lrfsgpio -lpthread ${opencv_LIBS} $(am__append_3)
 python_PYTHON = follow.py
@@ -519,12 +518,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dashedline1segment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dashedline2segment.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/differentialroadfinder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/doubleturnleftsegment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/doubleturnrightsegment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/doubleturnsegment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/framecapture.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gpiomotors.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linefollowerapp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
@@ -534,9 +533,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pilot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/realcamera.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/road.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robotanicuslinetracker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/squaresegment.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ssfapathfinder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/straightsegment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tracksegment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/turnleftsegment.Po@am__quote@
