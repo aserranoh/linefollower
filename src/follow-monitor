@@ -77,7 +77,6 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
-GREEN = (0, 255, 0)
 MAGENTA = (255, 0, 255)
 
 # Values to scale the road to fit it in the screen
@@ -249,9 +248,8 @@ class FollowMonitorMain(object):
                 self.feedback_turn = evt.turn
                 self.feedback_speed = evt.speed
             elif evt.type == follow.EVT_DATA:
-                # The road and path geometry data
-                self.sections = evt.sections
-                self.path = evt.path
+                # The line geometry data
+                self.line = evt.line
             elif evt.type == follow.EVT_INFO:
                 # Robot's geometric info
                 self.wheel_axis_offset = evt.wheel_axis_offset
@@ -264,37 +262,18 @@ class FollowMonitorMain(object):
         '''Render things on screen.'''
         # Clear the screen
         self.screen.fill(BLACK)
-        self._render_road()
-        self._render_path()
+        self._render_line()
         self._render_robot()
         self._render_status_widgets()
 
-    def _render_road(self):
-        '''Render the road.'''
-        for i in range(1, len(self.sections)):
-            s0 = self.sections[i - 1]
-            s1 = self.sections[i]
-            # Draw the left line
-            pygame.draw.line(self.screen, BLUE, self._wtos((s0[0], s0[3])),
-                self._wtos((s1[0], s1[3])))
-            # Draw the right line
-            pygame.draw.line(self.screen, BLUE, self._wtos((s0[2], s0[3])),
-                self._wtos((s1[2], s1[3])))
-            # Draw the central line. Check for errors because somtimes it is
-            # invalid
-            try:
-                pygame.draw.line(self.screen, YELLOW,
-                    self._wtos((s0[1], s0[3])), self._wtos((s1[1], s1[3])))
-            except TypeError: pass
-
-    def _render_path(self):
-        '''Render the path that the line follower robot follows.'''
-        for i in range(1, len(self.path)):
-            p0 = self.path[i - 1]
-            p1 = self.path[i]
-            # Draw the path segment
+    def _render_line(self):
+        '''Render the line that the line follower robot follows.'''
+        for i in range(1, len(self.line)):
+            p0 = self.line[i - 1]
+            p1 = self.line[i]
+            # Draw the line segment
             pygame.draw.line(
-                self.screen, GREEN, self._wtos(p0), self._wtos(p1))
+                self.screen, YELLOW, self._wtos(p0), self._wtos(p1))
 
     def _wtos(self, wp):
         '''Transform world coordinates to screen coordinates.

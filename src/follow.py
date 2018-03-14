@@ -31,8 +31,7 @@ _DEFAULT_TIMEOUT = 5
 DEFAULT_PORT = 10101
 
 # Constants to decode the data event
-_FLOATS_PER_SECTION = 4
-_FLOATS_PER_PATH_POINT = 2
+_FLOATS_PER_LINE_POINT = 2
 
 class Event(object):
     '''An event received from the line follower robot.
@@ -137,25 +136,17 @@ class DataEvent(Event):
 
     def __init__(self, bytes):
         Event.__init__(self, bytes)
-        # Extract the number of sections
-        num_s = bytes[1]
-        # Extract the number of points in the path
-        num_p = bytes[2]
+        # Extract the number of points in the line
+        num_p = bytes[1]
         # Extract the floating point values encoded in the event
-        floats = struct.unpack('>xxx{}f{}f'.format(
-            num_s*_FLOATS_PER_SECTION, num_p*_FLOATS_PER_PATH_POINT), bytes)
-        self.sections = []
-        self.path = []
+        floats = struct.unpack('>xx{}f'.format(
+            num_p*_FLOATS_PER_LINE_POINT), bytes)
+        self.line = []
         next = 0
-        # Get the sections values
-        for i in range(num_s):
-            s = (floats[next], floats[next+1], floats[next+2], floats[next+3])
-            self.sections.append(s)
-            next += _FLOATS_PER_SECTION
-        # Get the path points
+        # Get the line points
         for i in range(num_p):
-            self.path.append((floats[next], floats[next+1]))
-            next += _FLOATS_PER_PATH_POINT
+            self.line.append((floats[next], floats[next+1]))
+            next += _FLOATS_PER_LINE_POINT
 
 class InfoEvent(Event):
     '''An info event, sent with some geometric information of the robot.
