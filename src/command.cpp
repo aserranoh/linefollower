@@ -199,9 +199,9 @@ Command::send_data(const Line& line)
     for (size_t i = 0; i < line.size() && i < MAX_POINTS; i++) {
         const line_point_t& p = line.get_point(i);
         // X
-        encf(p.x, ptr);
+        encf(p.wx, ptr);
         // Y
-        encf(p.y, ptr + sizeof(float));
+        encf(p.wy, ptr + sizeof(float));
         ptr += 2*sizeof(float);
     }
     // Send the data to all the subscribers

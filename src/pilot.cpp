@@ -1,8 +1,6 @@
 
 #include "pilot.hpp"
 
-#include <stdio.h>
-
 Pilot::Pilot()
 {}
 

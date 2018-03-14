@@ -35,10 +35,13 @@ namespace utilities {
        Parameters:
          * src: the input array.
          * size: size of the src array.
-         * min: position of the minimum in the array src.
-         * max: position of the maximum in the array src.
+         * min: the minimum value.
+         * minpos: position of the minimum in the array src.
+         * max: the maximum value.
+         * maxpos: position of the maximum in the array src.
     */
-    void minmax(int *src, size_t size, int &min, int &max);
+    void minmax(int *src, size_t size, int& min, int& minpos, int& max,
+        int& maxpos);
 
     // Plot a 1D vector.
     void plot(int *x, size_t size, int scaley, Mat& plt);

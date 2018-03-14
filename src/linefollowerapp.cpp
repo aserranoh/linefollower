@@ -33,6 +33,9 @@ const char* LineFollowerApp::options_default[] = {
     "Motors", "real",
     "RealMotorsType", "gpio",
     "LineTracker", "robotanicus",
+    "HorizontalScanlineOffset", "50",
+    "NumScanCircles", "5",
+    "ScanCircleRadius", "1.5",
     "Port", "10101",
     "InactivityTimeout", "300",
     "VertexShader", DATADIR "/" PACKAGE_NAME "/vertex.sl",
@@ -158,7 +161,7 @@ LineFollowerApp::draw_line(Mat& frame)
 {
     for (size_t i = 0; i < line.size(); i++) {
         const line_point_t& p = line.get_point(i);
-        circle(frame, Point(X_TO_SCR(p.x), Y_TO_SCR(p.y)), 3, LINE_COLOR, 2);
+        circle(frame, Point(X_TO_SCR(p.wx), Y_TO_SCR(p.wy)), 3, LINE_COLOR, 2);
     }
 }
 
@@ -203,9 +206,9 @@ LineFollowerApp::move_motors()
         // Autonomous mode, let pilot do its thing.
         const line_point_t &p = line.get_point(0);
         if (virtual_motors)
-            virtual_motors_pilot.set_angle(-p.x);
+            virtual_motors_pilot.set_angle(-p.wx);
         if (real_motors)
-            real_motors_pilot.set_angle(-p.x);
+            real_motors_pilot.set_angle(-p.wx);
     } else {
         // Manual mode, move the motors the given amount in the command and
         // send back an event of confirmation

@@ -10,11 +10,6 @@
 #include "followexception.hpp"
 #include "utilities.hpp"
 
-// TODO: Application's param
-#define HORIZONTAL_SCANLINE_OFFSET  50
-#define NUM_SCAN_CIRCLES    5
-#define SCAN_CIRCLE_RADIUS  1.5f
-
 #define NUM_ANGLES  128
 
 using namespace utilities;
@@ -38,9 +33,10 @@ RobotanicusLineTracker::RobotanicusLineTracker(const Options& options):
         options.get_float("CameraFovh"), options.get_float("CameraFovv"),
         options.get_float("CameraZ"),
         to_rad(options.get_float("CameraAngle"))),
-    horizontal_scanline_offset(HORIZONTAL_SCANLINE_OFFSET),
-    num_scan_circles(NUM_SCAN_CIRCLES),
-    scan_circle_radius(SCAN_CIRCLE_RADIUS)
+    horizontal_scanline_offset(options.get_int("HorizontalScanlineOffset")),
+    num_scan_circles(options.get_int("NumScanCircles")),
+    scan_circle_radius(options.get_float("ScanCircleRadius")),
+    ref_min(INT_MIN), ref_max(INT_MAX)
 {
     // Check the horizontal_scanline_offset param
     if (horizontal_scanline_offset > cam_params.height - 1) {
@@ -109,7 +105,7 @@ RobotanicusLineTracker::track(Mat& frame, Line& line)
     circle(frame, Point(x, y), 5, Scalar(0, 0, 255), -1);
     // Add the point to the line (in world reference)
     screen_to_world(x, y, wx, wy);
-    line.add(wx, wy);
+    line.add(x, y, wx, wy);
 
     // Track the line using the scan-circles
     // Initially, the center of the scan circle is the point found with the
@@ -120,12 +116,16 @@ RobotanicusLineTracker::track(Mat& frame, Line& line)
         radius = get_scan_circle_radius(wy);
         // The initial angle of scan depends on the angle between the last
         // two points
-        angle = line.get_last_angle() - M_PI/2.0;
+        const line_point_t &p = line.get_point(line.size() - 1);
+        angle = p.sangle - M_PI/2.0;
         ellipse(frame, Point(x, y), Size(radius, radius), 0, -to_deg(angle), -to_deg(angle) - 180, Scalar(255, 0, 0));
         find_line_scan_circle(gray_frame, x, y, radius, angle, x, y);
+        if (x == INT_MAX) {
+            break;
+        }
         circle(frame, Point(x, y), 5, Scalar(0, 0, 255), -1);
         screen_to_world(x, y, wx, wy);
-        line.add(wx, wy);
+        line.add(x, y, wx, wy);
     }
 }
 
@@ -140,7 +140,7 @@ RobotanicusLineTracker::track(Mat& frame, Line& line)
 */
 void
 RobotanicusLineTracker::find_line_horizontal_scanline(
-    const Mat &frame, int& x, int& y) const
+    const Mat &frame, int& x, int& y)
 {
     // Calculate the derivative of the scanline
     size_t row_offset = cam_params.height - 1 - horizontal_scanline_offset;
@@ -148,9 +148,27 @@ RobotanicusLineTracker::find_line_horizontal_scanline(
     derivative(ptr, frame.cols, aux_row);
 
     // Search the absolutes minimum and maximum values in the derivative
-    int min, max;
-    minmax(aux_row, frame.cols, min, max);
-    x = (min + max) / 2;
+    int min, max, minpos, maxpos;
+    minmax(aux_row, frame.cols, min, minpos, max, maxpos);
+    // The first time keep the values min and max as reference values
+    if (ref_min == INT_MIN) {
+        ref_min = min;
+        ref_max = max;
+    }
+
+    // Check the cases when the line is at one side of the image
+    if (min > ref_min*0.5) {
+        // We "didn't" find min, so only Black->White transition was fount,
+        // meaning that the line is in the right side
+        x = (maxpos + cam_params.width) / 2;
+    } else if (max < ref_max*0.5) {
+        // We "didn't" find max, so only White->Black transition was found,
+        // meaning that the line is in the left side
+        x = minpos/2;
+    } else {
+        // Normal case, both min and max were found
+        x = (minpos + maxpos) / 2;
+    }
     y = row_offset;
 }
 
@@ -181,22 +199,50 @@ RobotanicusLineTracker::find_line_scan_circle(const Mat& frame, int cx, int cy,
     // i contains the position of the first angle to use in the table of
     // angles
     // Build the array of grey pixel values
-    int j = 0, row, col;
-    for (int k = i; j < NUM_ANGLES/2; j++, k = (k + 1) & (NUM_ANGLES - 1)) {
+    int j = 0, row, col, start = -1, end = -1;
+    for (int k = i; j < NUM_ANGLES/2 && end < 0;
+        j++, k = (k + 1) & (NUM_ANGLES - 1))
+    {
         row = cy - (int)((float)radius * table_angles[k].sin);
         col = cx + (int)((float)radius * table_angles[k].cos);
-        scan_circle[j] = *(frame.data + row * frame.cols + col);
+        // Check that the pixel is inside the image
+        if (row < 0 || row >= cam_params.height
+            || col < 0 || col >= cam_params.width)
+        {
+            if (start >= 0) {
+                end = j;
+            }
+        } else {
+            if (start < 0) {
+                start = j;
+            }
+            scan_circle[j] = *(frame.data + row * frame.cols + col);
+        }
     }
 
-    // Find the derivative of the array
-    derivative(scan_circle, NUM_ANGLES/2, aux_row);
+    if (start < 0) {
+        x = y = INT_MAX;
+    } else {
+        if (end < 0) {
+            end = j;
+        }
+        // Find the derivative of the array
+        derivative(scan_circle + start, end - start, aux_row);
 
-    // Search the absolutes minimum and maximum values in the derivative
-    int min, max;
-    minmax(aux_row, NUM_ANGLES/2, min, max);
-    int angle_index = ((min + max)/2 + i) & (NUM_ANGLES - 1);
-    x = cx + (int)((float)radius * table_angles[angle_index].cos);
-    y = cy - (int)((float)radius * table_angles[angle_index].sin);
+        // Search the absolutes minimum and maximum values in the derivative
+        int min, max, minpos, maxpos;
+        minmax(aux_row, end - start, min, minpos, max, maxpos);
+        // Check the cases where the line is not completely inside the scan
+        // circle
+        if (min > ref_min*0.5 || max < ref_max*0.5) {
+            x = y = INT_MAX;
+        } else {
+            int angle_index = ((minpos + maxpos)/2 + start + i)
+                & (NUM_ANGLES - 1);
+            x = cx + (int)((float)radius * table_angles[angle_index].cos);
+            y = cy - (int)((float)radius * table_angles[angle_index].sin);
+        }
+    }
 }
 
 /* Get the radius of the scan circle to use. The radius of the scan

@@ -81,20 +81,23 @@ utilities::loadfile(const char *filename)
    Parameters:
      * src: the input array.
      * size: size of the src array.
-     * min: position of the minimum in the array src.
-     * max: position of the maximum in the array src.
+     * min: the minimum value.
+     * minpos: position of the minimum in the array src.
+     * max: the maximum value.
+     * maxpos: position of the maximum in the array src.
 */
 void
-utilities::minmax(int *src, size_t size, int &min, int &max)
+utilities::minmax(int *src, size_t size, int& min, int& minpos, int& max,
+    int& maxpos)
 {
-    int minval = INT_MAX, maxval = INT_MIN;
-
+    min = INT_MAX;
+    max = INT_MIN;
     for (int i = 0; i < size; i++) {
-        if (src[i] < minval) {
-            minval = src[min = i];
+        if (src[i] < min) {
+            min = src[minpos = i];
         }
-        if (src[i] > maxval) {
-            maxval = src[max = i];
+        if (src[i] > max) {
+            max = src[maxpos = i];
         }
     }
 }

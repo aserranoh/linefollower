@@ -51,6 +51,10 @@ class RobotanicusLineTracker: public LineTracker {
         // Destination images form some transformations
         Mat gray_frame;
 
+        // Reference min and max derivatives values
+        int ref_min;
+        int ref_max;
+
         // Some constants to accelerate the calculations
         float k1, k2, k3, k4, k5;
 
@@ -65,8 +69,7 @@ class RobotanicusLineTracker: public LineTracker {
              * x: the output x coordinates of the line.
              * y: the output y coordinates of the line.
         */
-        void find_line_horizontal_scanline(const Mat &frame, int& x, int& y)
-            const;
+        void find_line_horizontal_scanline(const Mat &frame, int& x, int& y);
 
         /* Find the position of the next point of the line using a scan circle.
            Parameters:

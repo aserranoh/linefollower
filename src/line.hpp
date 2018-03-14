@@ -8,11 +8,20 @@ using namespace std;
 
 // Represents a point in the line
 typedef struct line_point_s {
-    float x;
-    float y;
-    float angle;
+    // Coordinates and angle in screen reference frame
+    int sx;
+    int sy;
+    float sangle;
+    // Coordinates and angle in world reference frame
+    float wx;
+    float wy;
+    float wangle;
 
-    line_point_s(float x, float y, float angle): x(x), y(y), angle(angle) {}
+    // Constructor
+    line_point_s(int sx, int sy, float sangle, float wx, float wy,
+            float wangle):
+        sx(sx), sy(sy), sangle(sangle), wx(wx), wy(wy), wangle(wangle)
+    {}
 } line_point_t;
 
 class Line {
@@ -24,16 +33,15 @@ class Line {
 
         /* Add a point to this line.
            Parameters:
-             * x: X coordinates of the point.
-             * y: Y coordinates of the point.
+             * sx: X coordinates of the point in screen reference frame.
+             * sy: Y coordinates of the point in screen reference frame.
+             * wx: X coordinates of the point in world reference frame.
+             * wy: Y coordinates of the point in world reference frame.
         */
-        void add(float x, float y);
+        void add(float sx, float sy, float wx, float wy);
 
         // Remove all the points of this line.
         void clear();
-
-        // Return the angle between the last two points.
-        float get_last_angle() const;
 
         /* Return a point of the line.
            Parameters:

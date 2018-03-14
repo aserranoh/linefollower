@@ -2,7 +2,6 @@
 #include "line.hpp"
 
 #include <math.h>
-#include <stdio.h>
 
 Line::Line()
 {}
@@ -12,24 +11,31 @@ Line::~Line()
 
 /* Add a point to this line.
    Parameters:
-     * x: X coordinates of the point.
-     * y: Y coordinates of the point.
+     * sx: X coordinates of the point in screen reference frame.
+     * sy: Y coordinates of the point in screen reference frame.
+     * wx: X coordinates of the point in world reference frame.
+     * wy: Y coordinates of the point in world reference frame.
 */
 void
-Line::add(float x, float y)
+Line::add(float sx, float sy, float wx, float wy)
 {
-    // If there was alread a point, compute the angle between them two
-    size_t size = points.size();
-    float angle;
-    if (size) {
-        float vx = x - points[size - 1].x;
-        float vy = y - points[size - 1].y;
-        vx /= sqrt(vx*vx + vy+vy);
-        angle = acos(vx);
+    // If there was already a point, compute the angle between them two
+    float sangle, wangle;
+
+    if (points.size()) {
+        line_point_t& p = points[points.size() - 1];
+        float vsx = sx - p.sx;
+        float vsy = sy - p.sy;
+        float vwx = wx - p.wx;
+        float vwy = wy - p.wy;
+        vsx /= sqrt(vsx*vsx + vsy*vsy);
+        sangle = acos(vsx);
+        vwx /= sqrt(vwx*vwx + vwy*vwy);
+        wangle = acos(vwx);
     } else {
-        angle = M_PI/2.0;
+        sangle = wangle = M_PI/2.0;
     }
-    points.push_back(line_point_t(x, y, angle));
+    points.push_back(line_point_t(sx, sy, sangle, wx, wy, wangle));
 }
 
 // Remove all the points of this line.
@@ -37,13 +43,6 @@ void
 Line::clear()
 {
     points.clear();
-}
-
-// Return the angle between the last two points.
-float
-Line::get_last_angle() const
-{
-    return points[points.size() - 1].angle;
 }
 
 /* Return a point of the line.
