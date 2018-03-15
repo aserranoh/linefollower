@@ -54,6 +54,7 @@ LineFollowerApp::LineFollowerApp(const char *options_file):
 {
     create_motors();
     create_line_tracker();
+    //start_motors();
 }
 
 LineFollowerApp::~LineFollowerApp()
@@ -204,11 +205,10 @@ LineFollowerApp::move_motors()
 
     if (following) {
         // Autonomous mode, let pilot do its thing.
-        const line_point_t &p = line.get_point(0);
         if (virtual_motors)
-            virtual_motors_pilot.set_angle(-p.wx);
+            virtual_motors_pilot.pilot(line);
         if (real_motors)
-            real_motors_pilot.set_angle(-p.wx);
+            real_motors_pilot.pilot(line);
     } else {
         // Manual mode, move the motors the given amount in the command and
         // send back an event of confirmation

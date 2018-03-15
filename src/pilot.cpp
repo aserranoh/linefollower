@@ -1,6 +1,8 @@
 
 #include "pilot.hpp"
 
+#include <math.h>
+
 Pilot::Pilot()
 {}
 
@@ -10,28 +12,64 @@ Pilot::Pilot()
      * options: application's options.
 */
 Pilot::Pilot(Motors *motors, const Options& options):
-    motors(motors), max_speed(options.get_float("MaxSpeed")),
-    kp(options.get_float("Kp")), ki(options.get_float("Ki")),
-    kd(options.get_float("Kd")), sum_angle(0.0), prev_angle(0.0)
+    motors(motors), kp(options.get_float("Kp")), ki(options.get_float("Ki")),
+    kd(options.get_float("Kd")), kspeed(options.get_float("KSpeed")),
+    max_speed(options.get_float("MaxSpeed")), sum_angle(0.0), prev_angle(0.0)
 {}
 
-/* Set the new angle that the vehicle must turn.
+/* Pilot the motors to follow the line.
    Parameters:
-     * angle: the angle to turn.
+     * line: the line to follow.
 */
 void
-Pilot::set_angle(float angle)
+Pilot::pilot(const Line& line)
 {
-    float turn;
+    float speed, turn;
 
-    // Calculate the turn value to use for the motors (PID formula)
-    turn = kp*angle + ki*sum_angle + kd*(angle - prev_angle);
+    speed = compute_speed(line);
+    turn = compute_turn(line);
 
     // Give the order to the motors
-    motors->move(max_speed, turn);
+    motors->move(speed, turn);
+}
 
+// PRIVATE FUNCTIONS
+
+/* Compute the speed to use depending on the line geometrics.
+   For each point, a little of speed may be substracted of the final speed,
+   according the following formula:
+     * The more the angle towards the point the more the speed is substracted.
+     * The more distance to the point the less speed is substracted.
+   Parameters:
+     * line: the line to follow.
+*/
+float
+Pilot::compute_speed(const Line& line)
+{
+    // Find the angle against the last point in the line
+    const line_point_t& p = line.get_point(line.size() - 1);
+    float angle = acos(p.wx/sqrt(p.wx*p.wx + p.wy*p.wy));
+    float speed = (1.0 - kspeed * abs(angle - M_PI/2.0)) * max_speed;
+    printf("speed: %f\n", speed);
+    return speed;
+}
+
+/* Compute the turn to use depending on the line geometrics.
+   To calculate the turn, a PID formula is used using as error the angle
+   towards the first point of the line.
+   Parameters:
+     * line: the line to follow.
+*/
+float
+Pilot::compute_turn(const Line& line)
+{
+    float turn;
+    float angle = line.get_point(0).wangle - M_PI/2.0;
+
+    turn = kp*angle + ki*sum_angle + kd*(angle - prev_angle);
     // Update the PID state
     sum_angle += angle;
     prev_angle = angle;
+    return turn;
 }
 

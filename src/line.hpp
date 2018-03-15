@@ -16,11 +16,14 @@ typedef struct line_point_s {
     float wx;
     float wy;
     float wangle;
+    // Cumulated distance along the line
+    float dist;
 
     // Constructor
     line_point_s(int sx, int sy, float sangle, float wx, float wy,
-            float wangle):
-        sx(sx), sy(sy), sangle(sangle), wx(wx), wy(wy), wangle(wangle)
+            float wangle, float dist):
+        sx(sx), sy(sy), sangle(sangle), wx(wx), wy(wy), wangle(wangle),
+        dist(dist)
     {}
 } line_point_t;
 

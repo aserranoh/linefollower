@@ -20,22 +20,26 @@ void
 Line::add(float sx, float sy, float wx, float wy)
 {
     // If there was already a point, compute the angle between them two
-    float sangle, wangle;
+    float vwx, vwy, sangle, wangle, wmod, dist = 0;
 
     if (points.size()) {
         line_point_t& p = points[points.size() - 1];
         float vsx = sx - p.sx;
         float vsy = sy - p.sy;
-        float vwx = wx - p.wx;
-        float vwy = wy - p.wy;
         vsx /= sqrt(vsx*vsx + vsy*vsy);
         sangle = acos(vsx);
-        vwx /= sqrt(vwx*vwx + vwy*vwy);
-        wangle = acos(vwx);
+        vwx = wx - p.wx;
+        vwy = wy - p.wy;
+        dist = p.dist;
     } else {
-        sangle = wangle = M_PI/2.0;
+        sangle = M_PI/2.0;
+        vwx = wx;
+        vwy = wy;
     }
-    points.push_back(line_point_t(sx, sy, sangle, wx, wy, wangle));
+    wmod = sqrt(vwx*vwx + vwy*vwy);
+    wangle = acos(vwx/wmod);
+    dist += wmod;
+    points.push_back(line_point_t(sx, sy, sangle, wx, wy, wangle, dist));
 }
 
 // Remove all the points of this line.
