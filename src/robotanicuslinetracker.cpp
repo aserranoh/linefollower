@@ -84,7 +84,7 @@ RobotanicusLineTracker::track(Mat& frame, Line& line)
     // Coordinates of the current point in world reference
     float wx, wy;
     float angle;
-    int radius;
+    int xaxis, yaxis;
 
     // Make sure that the frame is of the correct size
     if (frame.cols != cam_params.width || frame.rows != cam_params.height) {
@@ -113,13 +113,14 @@ RobotanicusLineTracker::track(Mat& frame, Line& line)
     for (int i = 0; i < num_scan_circles; i++) {
         // The radius of the scan-circle depends on the distance to the center
         // of the circle
-        radius = get_scan_circle_radius(wy);
+        get_scan_circle_axis(wy, y, xaxis, yaxis);
         // The initial angle of scan depends on the angle between the last
         // two points
         const line_point_t &p = line.get_point(line.size() - 1);
         angle = p.sangle - M_PI/2.0;
-        ellipse(frame, Point(x, y), Size(radius, radius), 0, -to_deg(angle), -to_deg(angle) - 180, Scalar(255, 0, 0));
-        find_line_scan_circle(gray_frame, x, y, radius, angle, x, y);
+        //ellipse(frame, Point(x, y), Size(xaxis, yaxis), 0, -to_deg(angle), -to_deg(angle) - 180, Scalar(255, 0, 0));
+        ellipse(frame, Point(x, y), Size(xaxis, yaxis), 0, 0, 360, Scalar(255, 0, 0));
+        find_line_scan_circle(gray_frame, x, y, xaxis, yaxis, angle, x, y);
         if (x == INT_MAX) {
             break;
         }
@@ -173,18 +174,21 @@ RobotanicusLineTracker::find_line_horizontal_scanline(
 }
 
 /* Find the position of the next point of the line using a scan circle.
+   Although it is called scan circle an ellipse is used because its a better
+   approximation of a circle projected to a plane in perspective.
    Parameters:
      * frame: the image.
      * cx: X coordinate of the center of the scan circle.
      * cy: Y coordinate of the center of the scan circle.
-     * radius: radius of the scan circle.
+     * xaxis: horizontal axis of the scan circle.
+     * yaxis: vertical axis of the scan circle.
      * angle: start angle of the scan circle.
      * x: the output x coordinates of the line.
      * y: tye output y coordinates of the line.
 */
 void
 RobotanicusLineTracker::find_line_scan_circle(const Mat& frame, int cx, int cy,
-    int radius, float angle, int& x, int& y)
+    int xaxis, int yaxis, float angle, int& x, int& y)
 {
     int i;
     uchar scan_circle[NUM_ANGLES/2];
@@ -203,8 +207,8 @@ RobotanicusLineTracker::find_line_scan_circle(const Mat& frame, int cx, int cy,
     for (int k = i; j < NUM_ANGLES/2 && end < 0;
         j++, k = (k + 1) & (NUM_ANGLES - 1))
     {
-        row = cy - (int)((float)radius * table_angles[k].sin);
-        col = cx + (int)((float)radius * table_angles[k].cos);
+        row = cy - (int)((float)yaxis * table_angles[k].sin);
+        col = cx + (int)((float)xaxis * table_angles[k].cos);
         // Check that the pixel is inside the image
         if (row < 0 || row >= cam_params.height
             || col < 0 || col >= cam_params.width)
@@ -239,24 +243,31 @@ RobotanicusLineTracker::find_line_scan_circle(const Mat& frame, int cx, int cy,
         } else {
             int angle_index = ((minpos + maxpos)/2 + start + i)
                 & (NUM_ANGLES - 1);
-            x = cx + (int)((float)radius * table_angles[angle_index].cos);
-            y = cy - (int)((float)radius * table_angles[angle_index].sin);
+            x = cx + (int)((float)xaxis * table_angles[angle_index].cos);
+            y = cy - (int)((float)yaxis * table_angles[angle_index].sin);
         }
     }
 }
 
-/* Get the radius of the scan circle to use. The radius of the scan
-   circle depends on the y coordinate of the center of the circle:
-   the far from the viewer the circle is in the image, the smaller
-   the radius.
+/* Get the major and minor axis of the scan circle (ellipse) to use. The axis
+   of the scan circle depends on the y coordinate of the center of the circle:
+   the far from the viewer the circle is in the image, the smaller the two
+   axis.
    Parameters:
      * y: Y coordinate of the circle center, in world coordinates.
+     * sy: Y coordinate of the circle center, in screen coordinates.
+     * xaxis: output parameter that contains the circle horizontal axis.
+     * yaxis: output parameter that contains the circle vertical axis.
 */
-int
-RobotanicusLineTracker::get_scan_circle_radius(float y) const
+void
+RobotanicusLineTracker::get_scan_circle_axis(float y, int sy, int& xaxis,
+    int& yaxis) const
 {
     float kx = k4 + k5*y;
-    return (int)(scan_circle_radius/kx);
+    float sy1 = (k1 - (y + scan_circle_radius)*k3)
+        / ((y + scan_circle_radius) + k2);
+    xaxis = (int)(scan_circle_radius/kx);
+    yaxis = sy - sy1;
 }
 
 /* Transform a point from screen to world coordinates.

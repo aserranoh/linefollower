@@ -12,7 +12,6 @@
      * options: application's options.
 */
 GPIOMotors::GPIOMotors(const Options& options):
-    Motors(options),
     pwm_period(NS_PER_SECOND/options.get_int("GPIOMotorsPWMFrequency"))
 {
     direction0_left.pin = options.get_int("GPIOMotorsDirection0Left");

@@ -5,6 +5,7 @@
 #include <sys/time.h>
 
 #include "motors.hpp"
+#include "options.hpp"
 #include "virtualcamera.hpp"
 
 /* Represents a set of two motors that move two wheels in an axis in a virtual
@@ -41,6 +42,12 @@ class VirtualMotors: public Motors {
 
         // Virtual camera attached to these virtual motors
         VirtualCamera *camera;
+
+        // Distance between wheels
+        float wheel_distance;
+
+        // Distance from the camera to the wheel axis
+        float wheel_axis_offset;
 
         // Maximum speed (in cm/s)
         float max_speed;

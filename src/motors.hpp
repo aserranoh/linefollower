@@ -2,17 +2,9 @@
 #ifndef MOTORS_HPP
 #define MOTORS_HPP
 
-#include "options.hpp"
-
 class Motors {
 
     public:
-
-        /* Constructor.
-           Params:
-             * options: application's options.
-        */
-        Motors(const Options& options);
 
         virtual ~Motors();
 
@@ -30,9 +22,6 @@ class Motors {
         virtual void stop() = 0;
 
     protected:
-
-        // Distance between wheels
-        float wheel_distance;
 
         /* Make sure that the speeds are no greater than 1.0.
            At exit, the speeds s1 and s2 ar less or equal than 1.0 and their

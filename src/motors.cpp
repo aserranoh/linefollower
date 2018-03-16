@@ -1,14 +1,6 @@
 
 #include "motors.hpp"
 
-/* Constructor.
-   Params:
-     * options: application's options.
-*/
-Motors::Motors(const Options& options):
-    wheel_distance(options.get_float("WheelDistance"))
-{}
-
 Motors::~Motors()
 {}
 

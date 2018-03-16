@@ -19,7 +19,9 @@ using namespace utilities;
      * options: application's options.
 */
 VirtualMotors::VirtualMotors(Camera *camera, const Options& options):
-        Motors(options), camera((VirtualCamera*)camera),
+    camera((VirtualCamera*)camera),
+    wheel_distance(options.get_float("WheelDistance")),
+    wheel_axis_offset(options.get_float("WheelAxisOffset")),
     max_speed(options.get_float("VirtualMotorsRpm")
         * M_PI * options.get_float("WheelDiameter") / S_PER_MIN)
 {}
@@ -72,11 +74,13 @@ VirtualMotors::move(float speed, float turn)
             angle = s2 * max_speed * dt * 2.0 / wheel_distance;
         }
         // Compute the center of the rotation
-        center = position - glm::cross(orientation, normal)*radius;
+        center = position - glm::cross(orientation, normal)*radius
+            + orientation*wheel_axis_offset;
         // Compute the new orientation
         orientation = glm::rotate(orientation, angle, normal);
         // Compute the new position
-        position = center + glm::cross(orientation, normal)*radius;
+        position = center + glm::cross(orientation, normal)*radius
+            - orientation*wheel_axis_offset;
     }
 
     // Set the new position and orientation

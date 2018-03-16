@@ -72,26 +72,35 @@ class RobotanicusLineTracker: public LineTracker {
         void find_line_horizontal_scanline(const Mat &frame, int& x, int& y);
 
         /* Find the position of the next point of the line using a scan circle.
+           Although it is called scan circle an ellipse is used because its a
+           better approximation of a circle projected to a plane in
+           perspective.
            Parameters:
              * frame: the image.
              * cx: X coordinate of the center of the scan circle.
              * cy: Y coordinate of the center of the scan circle.
-             * radius: radius of the scan circle.
+             * xaxis: horizontal axis of the scan circle.
+             * yaxis: vertical axis of the scan circle.
              * angle: start angle of the scan circle.
              * x: the output x coordinates of the line.
              * y: tye output y coordinates of the line.
         */
-        void find_line_scan_circle(const Mat& frame, int cx, int cy,
-            int radius, float angle, int& x, int& y);
+        void find_line_scan_circle(const Mat& frame, int cx, int cy, int xaxis,
+            int yaxis, float angle, int& x, int& y);
 
-        /* Get the radius of the scan circle to use. The radius of the scan
-           circle depends on the y coordinate of the center of the circle:
-           the far from the viewer the circle is in the image, the smaller
-           the radius.
+        /* Get the major and minor axis of the scan circle (ellipse) to use.
+           The axis of the scan circle depends on the y coordinate of the
+           center of the circle: the far from the viewer the circle is in the
+           image, the smaller the two axis.
            Parameters:
              * y: Y coordinate of the circle center, in world coordinates.
+             * sy: Y coordinate of the circle center, in screen coordinates.
+             * xaxis: output parameter that contains the circle horizontal
+                 axis.
+             * yaxis: output parameter that contains the circle vertical axis.
         */
-        int get_scan_circle_radius(float y) const;
+        void get_scan_circle_axis(float y, int sy, int& xaxis, int& yaxis)
+            const;
 
         /* Transform a point from screen to world coordinates.
            Parameters:

@@ -11,6 +11,7 @@ extern "C"{
 #endif
 
 #include "motors.hpp"
+#include "options.hpp"
 
 class GPIOMotors: public Motors {
 

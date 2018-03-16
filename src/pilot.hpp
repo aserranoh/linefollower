@@ -4,6 +4,7 @@
 
 #include "line.hpp"
 #include "motors.hpp"
+#include "options.hpp"
 
 class Pilot {
 
@@ -39,8 +40,8 @@ class Pilot {
         float kd;
 
         // State of the PID algorithm
-        float sum_angle;
-        float prev_angle;
+        float sum_error;
+        float prev_error;
 
         /* Compute the speed to use depending on the line geometrics.
            For each point, a little of speed may be substracted of the final
@@ -54,8 +55,8 @@ class Pilot {
         float compute_speed(const Line& line);
 
         /* Compute the turn to use depending on the line geometrics.
-           To calculate the turn, a PID formula is used using as error the
-           angle towards the first point of the line.
+           To calculate the turn, a PID formula is used using as error the x
+           value of the first point of the line.
            Parameters:
              * line: the line to follow.
         */
