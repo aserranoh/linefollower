@@ -8,7 +8,7 @@
 
 #include "opencv2/core.hpp"
 
-#include "camparams.hpp"
+#include "cameraparameters.hpp"
 #include "line.hpp"
 #include "linetracker.hpp"
 #include "options.hpp"
@@ -37,7 +37,7 @@ class RobotanicusLineTracker: public LineTracker {
     private:
 
         // The camera parameters
-        cam_params_t cam_params;
+        CameraParameters cam_params;
 
         // Height in the image of the horizontal scanline
         size_t horizontal_scanline_offset;
@@ -54,9 +54,6 @@ class RobotanicusLineTracker: public LineTracker {
         // Reference min and max derivatives values
         int ref_min;
         int ref_max;
-
-        // Some constants to accelerate the calculations
-        float k1, k2, k3, k4, k5;
 
         // Working variables
         int *aux_row;
@@ -101,15 +98,6 @@ class RobotanicusLineTracker: public LineTracker {
         */
         void get_scan_circle_axis(float y, int sy, int& xaxis, int& yaxis)
             const;
-
-        /* Transform a point from screen to world coordinates.
-           Parameters:
-             * sx: x coordinates in screen frame.
-             * sy: y coordinates in screen frame.
-             * x: output x in world coordinates.
-             * y: output y in world coordinates.
-        */
-        void screen_to_world(int sx, int sy, float& x, float& y);
 
 };
 

@@ -6,7 +6,7 @@
 
 #include "config.h"
 #include "camera.hpp"
-#include "camparams.hpp"
+#include "cameraparameters.hpp"
 #include "options.hpp"
 
 using namespace cv;
@@ -39,7 +39,7 @@ class FrameCapture {
         const Options& options;
 
         // Attributes necessary to build the camera
-        cam_params_t cam_params;
+        CameraParameters cam_params;
         string camera_type;
 
         // Component to obtain the camera frame

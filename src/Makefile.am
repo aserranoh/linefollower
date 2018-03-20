@@ -1,5 +1,5 @@
 
-bin_PROGRAMS = follow
+bin_PROGRAMS = follow follow-calibrate
 
 virtual_camera_SOURCES = acrossroadsegment.cpp acrossroadsegment.hpp \
     dashedline1segment.cpp dashedline1segment.hpp dashedline2segment.cpp \
@@ -16,13 +16,13 @@ virtual_camera_SOURCES = acrossroadsegment.cpp acrossroadsegment.hpp \
     widenarrowsegment.cpp widenarrowsegment.hpp zigzaglinesegment.cpp \
     zigzaglinesegment.hpp
 
-follow_SOURCES = camera.cpp camera.hpp camparams.hpp command.cpp command.hpp \
-    daemon.h followexception.hpp framecapture.cpp framecapture.hpp \
-    gpiomotors.cpp gpiomotors.hpp line.hpp line.cpp linefollowerapp.cpp \
-    linefollowerapp.hpp linetracker.hpp log.cpp log.hpp main.cpp motors.cpp \
-    motors.hpp options.cpp options.hpp pilot.cpp pilot.hpp realcamera.cpp \
-    realcamera.hpp robotanicuslinetracker.cpp robotanicuslinetracker.hpp \
-    utilities.cpp utilities.hpp
+follow_SOURCES = camera.cpp camera.hpp cameraparameters.cpp \
+    cameraparameters.hpp command.cpp command.hpp daemon.h followexception.hpp \
+    framecapture.cpp framecapture.hpp gpiomotors.cpp gpiomotors.hpp line.hpp \
+    line.cpp linefollowerapp.cpp linefollowerapp.hpp linetracker.hpp log.cpp \
+    log.hpp main.cpp motors.cpp motors.hpp options.cpp options.hpp pilot.cpp \
+    pilot.hpp realcamera.cpp realcamera.hpp robotanicuslinetracker.cpp \
+    robotanicuslinetracker.hpp utilities.cpp utilities.hpp
 
 follow_CFLAGS = ${opencv_CFLAGS}
 follow_LDADD = -lrfsgpio -lpthread ${opencv_LIBS}
@@ -32,6 +32,12 @@ follow_SOURCES += $(virtual_camera_SOURCES)
 follow_CFLAGS += ${glesv2_CFLAGS} ${egl_CFLAGS} ${x11_CFLAGS}
 follow_LDADD += ${glesv2_LIBS} ${egl_LIBS} ${x11_LIBS}
 endif
+
+follow_calibrate_SOURCES = cameraparameters.hpp cameraparameters.cpp \
+    followcalibrate.cpp utilities.hpp utilities.cpp
+
+follow_calibrate_CFLAGS = ${opencv_CFLAGS}
+follow_calibrate_LDADD = ${opencv_LIBS}
 
 python_PYTHON = follow.py
 dist_bin_SCRIPTS = follow-command

@@ -12,7 +12,7 @@
 #include <X11/Xlib.h>
 
 #include "camera.hpp"
-#include "camparams.hpp"
+#include "cameraparameters.hpp"
 #include "options.hpp"
 #include "virtualtrack.hpp"
 
@@ -51,7 +51,7 @@ class VirtualCamera: public Camera {
         VirtualTrack *track;
 
         // The camera's parameters
-        cam_params_t cam_params;
+        CameraParameters cam_params;
 
         // The front and back buffers
         Mat front_buffer;

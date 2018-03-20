@@ -71,13 +71,13 @@ VirtualCamera::fetch()
     // Set the camera position and orientation
     // The camera position (eye) is the current position in the track + the
     // camera Z position (added in the direction of the normal!)
-    glm::vec3 eye = position + normal * cam_params.cam_z;
+    glm::vec3 eye = position + normal * cam_params.z;
 
     // The camera orientation is obtained rotating the orientation vector the
     // camera angle through the orientation x normal vector
     // Beware, rotate needs the angle in radians
     glm::vec3 vx = glm::cross(normal, orientation);
-    glm::vec3 o = glm::rotate(orientation, (float)(cam_params.cam_angle), vx);
+    glm::vec3 o = glm::rotate(orientation, (float)(cam_params.angle), vx);
     track->set_view(eye, eye + o, cross(o, vx));
 
     // Clear the color and depth buffers

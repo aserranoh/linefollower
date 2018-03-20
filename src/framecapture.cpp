@@ -33,8 +33,8 @@ FrameCapture::FrameCapture(const Options& options):
     frame_avail(false), cam_init_finished(false), stop_req(false)
 {
     // Check the camera angle
-    if (cam_params.cam_angle > MAX_CAMANGLE
-        || cam_params.cam_angle < MIN_CAMANGLE)
+    if (cam_params.angle > CameraParameters::max_angle
+        || cam_params.angle < CameraParameters::min_angle)
     {
         throw FollowException(
             "camera angle must be between %.1f and %.1f degrees");

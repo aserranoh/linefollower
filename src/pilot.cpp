@@ -63,7 +63,6 @@ float
 Pilot::compute_turn(const Line& line)
 {
     float turn;
-    printf("points: %d\n", line.size());
     float error = -line.get_point(0).wx;
 
     turn = kp*error + ki*sum_error + kd*(error - prev_error);

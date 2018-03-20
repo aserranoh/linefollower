@@ -48,16 +48,6 @@ RobotanicusLineTracker::RobotanicusLineTracker(const Options& options):
     aux_row_size = cam_params.width;
     aux_row = new int[cam_params.width];
 
-    // Compute some constants to accelerate the coordinates conversions
-    float tan_cam_angle = tan(cam_params.cam_angle);
-    float kv = tan(to_rad(cam_params.fovv/2.0)) / (cam_params.height/2.0);
-    k2 = cam_params.cam_z * tan_cam_angle;
-    k1 = cam_params.cam_z/kv + k2 * cam_params.height/2.0;
-    k3 = tan_cam_angle/kv - cam_params.height/2.0;
-    float kh = tan(to_rad(cam_params.fovh/2.0)) / (cam_params.width/2.0);
-    k4 = kh * sin(cam_params.cam_angle) * cam_params.cam_z;
-    k5 = kh * cos(cam_params.cam_angle);
-
     // Build the table of angles
     float angle;
     for (int i = 0; i < NUM_ANGLES; i++) {
@@ -82,7 +72,7 @@ RobotanicusLineTracker::track(Mat& frame, Line& line)
     // Coordinates of the current point in screen reference
     int x, y;
     // Coordinates of the current point in world reference
-    float wx, wy;
+    glm::vec2 w;
     float angle;
     int xaxis, yaxis;
 
@@ -104,8 +94,8 @@ RobotanicusLineTracker::track(Mat& frame, Line& line)
     cv::line(frame, Point(0, y), Point(frame.cols, y), Scalar(255, 0, 0));
     circle(frame, Point(x, y), 5, Scalar(0, 0, 255), -1);
     // Add the point to the line (in world reference)
-    screen_to_world(x, y, wx, wy);
-    line.add(x, y, wx, wy);
+    w = cam_params.get_world_point(x, y);
+    line.add(x, y, w[0], w[1]);
 
     // Track the line using the scan-circles
     // Initially, the center of the scan circle is the point found with the
@@ -113,7 +103,7 @@ RobotanicusLineTracker::track(Mat& frame, Line& line)
     for (int i = 0; i < num_scan_circles; i++) {
         // The radius of the scan-circle depends on the distance to the center
         // of the circle
-        get_scan_circle_axis(wy, y, xaxis, yaxis);
+        get_scan_circle_axis(w[1], y, xaxis, yaxis);
         // The initial angle of scan depends on the angle between the last
         // two points
         const line_point_t &p = line.get_point(line.size() - 1);
@@ -125,8 +115,8 @@ RobotanicusLineTracker::track(Mat& frame, Line& line)
             break;
         }
         circle(frame, Point(x, y), 5, Scalar(0, 0, 255), -1);
-        screen_to_world(x, y, wx, wy);
-        line.add(x, y, wx, wy);
+        w = cam_params.get_world_point(x, y);
+        line.add(x, y, w[0], w[1]);
     }
 }
 
@@ -263,27 +253,8 @@ void
 RobotanicusLineTracker::get_scan_circle_axis(float y, int sy, int& xaxis,
     int& yaxis) const
 {
-    float kx = k4 + k5*y;
-    float sy1 = (k1 - (y + scan_circle_radius)*k3)
-        / ((y + scan_circle_radius) + k2);
-    xaxis = (int)(scan_circle_radius/kx);
-    yaxis = sy - sy1;
-}
-
-/* Transform a point from screen to world coordinates.
-   Parameters:
-     * sx: x coordinates in screen frame.
-     * sy: y coordinates in screen frame.
-     * x: output x in world coordinates.
-     * y: output y in world coordinates.
-*/
-void
-RobotanicusLineTracker::screen_to_world(int sx, int sy, float& x, float& y)
-{
-    float kx;
-
-    y = (k1 - k2*sy)/(k3 + sy);
-    kx = k4 + k5*y;
-    x = (sx - (float)cam_params.width/2.0)*kx;
+    xaxis = cam_params.get_screen_x(scan_circle_radius, y)
+        - (int)cam_params.width/2.0;
+    yaxis = sy - cam_params.get_screen_y(y + scan_circle_radius);
 }
 

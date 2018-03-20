@@ -6,7 +6,7 @@
 #include <map>
 #include <vector>
 
-#include "camparams.hpp"
+#include "cameraparameters.hpp"
 #include "command.hpp"
 #include "framecapture.hpp"
 #include "line.hpp"

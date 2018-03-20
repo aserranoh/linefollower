@@ -10,9 +10,6 @@ to test new algorithms.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your
-local machine for development and testing purposes.
-
 ### Prerequisites
 
 `linefollower` has the following dependencies:
@@ -43,7 +40,7 @@ the `./configure` command.
 ### Using `linefollower`
 
 The `linefollower` application is a daemon that analyzes the image captured
-from the camera to determine where the road is and then gives orders to the
+from the camera to determine where the line is and then gives orders to the
 motors to move the robot in the correct direction.
 
 The application can be in two different modes: **piloted** or **autonomous**.
@@ -51,17 +48,17 @@ In **piloted** mode, the application only analyzes the image but doesn't pilot
 the motors by itself. It is the user that sends remote commands to move the
 robot (like an RC car).
 
-In **autonomous** mode, the application pilot the motors. In this mode, the
+In **autonomous** mode, the application pilots the motors. In this mode, the
 user commands to pilot won't work.
 
 The application listens to an UDP socket where the commands to pilot the robot
 or change from one mode to another are sent. By default, this is the 10101
-port. A remote client can sent a subscription request to the application using
+port. A remote client can send a subscription request to the application using
 this socket to receive events from the robot (like confirmation of change
-of speed or mode). Also, the robot sends the geometry of the estimated road
-and the calculated navigation path to the subscriptors. The package provides
-the `Python` script `follow-monitor.py` and the `Python` module `follow.py`
-to communicate with the application from a remote machine.
+of speed or mode). Also, the robot sends the geometry of the estimated line
+to the subscriptors. The package provides the `Python` script
+`follow-monitor.py` and the `Python` module `follow.py` to communicate with the
+application from a remote machine.
 
 The application is configured using a configuration file. Its path can be
 given through the command line arguments, but by default usually it will be
@@ -165,10 +162,10 @@ Where:
   used. If the segment doesn't have the given input number, the first input is
   used.
 * `previous`: The previous segment to connect to. If it is omitted, the
-  previous one is used. If a value is given, it must be the index in the track
-  file of the segment to connect to. A negative number means the Nth segment
-  before the current one (for example, -1 would be the previous segment in the
-  list).
+  previous segment in the file is used. If a value is given, it must be the
+  index in the track file of the segment to connect to. A negative number means
+  the Nth segment before the current one (for example, -1 would be the previous
+  segment in the list).
 * `output`: The output in the previous segment to connect to. If it is omitted,
   the first output is used.
 
@@ -244,11 +241,11 @@ the left and right motors (as seen by the `sysfs` PWM driver).
 of the motor to the motor controller. Their use is resumed in the next table:
 
 `GPIOMotorsDirection0*` | `GPIOMotorsDirection1*` | Motor direction
---- | --- | ---
-0 | 0 | Stopped
-0 | 1 | Backwards
-1 | 0 | Forwards
-1 | 1 | Stopped
+----------------------- | ----------------------- | ---------------
+0                       | 0                       | Stopped
+0                       | 1                       | Backwards
+1                       | 0                       | Forwards
+1                       | 1                       | Stopped
 
 `GPIOMotorsPWMFrequency` is the frequency in Hz of the PWM signal.
 
@@ -262,22 +259,27 @@ of virtual motors are used. It is just a mean to move the camera through the
 Motors=virtual
 ```
 
-The only parameter of the virtual motors are the maximum speed (in RPM):
+The virtual motors are defined by 4 parameters:
 
 ```
 VirtualMotorsRpm=778
+WheelDistance=7.18
+WheelDiameter=4
+WheelAxisOffset=-11.8
 ```
+
+`VirtualMotorsRpm` is the maximum speed of the motors (in RPM), `WheelDistance`
+is the distance between wheels, `WheelDiameter` is the diameter of the wheels
+and `WheelAxisOffset` is the distance from the wheels axis to the center of
+the robot (where the camera is). These 4 parameters are necessary to calculate
+the positions of the robot in the virtual scene.
 
 Note that the option `Motors` can be set to `both`, in that case if using a
 virtual camera the real robot will move at the same time that the camera does
 in the virtual world. In the other hand, the virtual motors can only be used
 with a virtual camera.
 
-### Using the Road Finder algorithm
-
-TBD
-
-### Using the Path Finder algorithm
+### Using the Line Tracker algorithm
 
 TBD
 

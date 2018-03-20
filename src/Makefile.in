@@ -87,7 +87,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = follow$(EXEEXT)
+bin_PROGRAMS = follow$(EXEEXT) follow-calibrate$(EXEEXT)
 @GLES2_TRUE@am__append_1 = $(virtual_camera_SOURCES)
 @GLES2_TRUE@am__append_2 = ${glesv2_CFLAGS} ${egl_CFLAGS} ${x11_CFLAGS}
 @GLES2_TRUE@am__append_3 = ${glesv2_LIBS} ${egl_LIBS} ${x11_LIBS}
@@ -106,13 +106,13 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(pythondir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__follow_SOURCES_DIST = camera.cpp camera.hpp camparams.hpp \
-	command.cpp command.hpp daemon.h followexception.hpp \
-	framecapture.cpp framecapture.hpp gpiomotors.cpp \
-	gpiomotors.hpp line.hpp line.cpp linefollowerapp.cpp \
-	linefollowerapp.hpp linetracker.hpp log.cpp log.hpp main.cpp \
-	motors.cpp motors.hpp options.cpp options.hpp pilot.cpp \
-	pilot.hpp realcamera.cpp realcamera.hpp \
+am__follow_SOURCES_DIST = camera.cpp camera.hpp cameraparameters.cpp \
+	cameraparameters.hpp command.cpp command.hpp daemon.h \
+	followexception.hpp framecapture.cpp framecapture.hpp \
+	gpiomotors.cpp gpiomotors.hpp line.hpp line.cpp \
+	linefollowerapp.cpp linefollowerapp.hpp linetracker.hpp \
+	log.cpp log.hpp main.cpp motors.cpp motors.hpp options.cpp \
+	options.hpp pilot.cpp pilot.hpp realcamera.cpp realcamera.hpp \
 	robotanicuslinetracker.cpp robotanicuslinetracker.hpp \
 	utilities.cpp utilities.hpp acrossroadsegment.cpp \
 	acrossroadsegment.hpp dashedline1segment.cpp \
@@ -143,17 +143,22 @@ am__objects_1 = acrossroadsegment.$(OBJEXT) \
 	virtualmotors.$(OBJEXT) virtualtrack.$(OBJEXT) \
 	widenarrowsegment.$(OBJEXT) zigzaglinesegment.$(OBJEXT)
 @GLES2_TRUE@am__objects_2 = $(am__objects_1)
-am_follow_OBJECTS = camera.$(OBJEXT) command.$(OBJEXT) \
-	framecapture.$(OBJEXT) gpiomotors.$(OBJEXT) line.$(OBJEXT) \
-	linefollowerapp.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) \
-	motors.$(OBJEXT) options.$(OBJEXT) pilot.$(OBJEXT) \
-	realcamera.$(OBJEXT) robotanicuslinetracker.$(OBJEXT) \
-	utilities.$(OBJEXT) $(am__objects_2)
+am_follow_OBJECTS = camera.$(OBJEXT) cameraparameters.$(OBJEXT) \
+	command.$(OBJEXT) framecapture.$(OBJEXT) gpiomotors.$(OBJEXT) \
+	line.$(OBJEXT) linefollowerapp.$(OBJEXT) log.$(OBJEXT) \
+	main.$(OBJEXT) motors.$(OBJEXT) options.$(OBJEXT) \
+	pilot.$(OBJEXT) realcamera.$(OBJEXT) \
+	robotanicuslinetracker.$(OBJEXT) utilities.$(OBJEXT) \
+	$(am__objects_2)
 follow_OBJECTS = $(am_follow_OBJECTS)
 am__DEPENDENCIES_1 =
 @GLES2_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) \
 @GLES2_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 follow_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+am_follow_calibrate_OBJECTS = cameraparameters.$(OBJEXT) \
+	followcalibrate.$(OBJEXT) utilities.$(OBJEXT)
+follow_calibrate_OBJECTS = $(am_follow_calibrate_OBJECTS)
+follow_calibrate_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__dist_bin_SCRIPTS_DIST = follow-command follow-monitor
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -224,8 +229,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(follow_SOURCES)
-DIST_SOURCES = $(am__follow_SOURCES_DIST)
+SOURCES = $(follow_SOURCES) $(follow_calibrate_SOURCES)
+DIST_SOURCES = $(am__follow_SOURCES_DIST) $(follow_calibrate_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -379,17 +384,22 @@ virtual_camera_SOURCES = acrossroadsegment.cpp acrossroadsegment.hpp \
     widenarrowsegment.cpp widenarrowsegment.hpp zigzaglinesegment.cpp \
     zigzaglinesegment.hpp
 
-follow_SOURCES = camera.cpp camera.hpp camparams.hpp command.cpp \
-	command.hpp daemon.h followexception.hpp framecapture.cpp \
-	framecapture.hpp gpiomotors.cpp gpiomotors.hpp line.hpp \
-	line.cpp linefollowerapp.cpp linefollowerapp.hpp \
-	linetracker.hpp log.cpp log.hpp main.cpp motors.cpp motors.hpp \
-	options.cpp options.hpp pilot.cpp pilot.hpp realcamera.cpp \
-	realcamera.hpp robotanicuslinetracker.cpp \
-	robotanicuslinetracker.hpp utilities.cpp utilities.hpp \
-	$(am__append_1)
+follow_SOURCES = camera.cpp camera.hpp cameraparameters.cpp \
+	cameraparameters.hpp command.cpp command.hpp daemon.h \
+	followexception.hpp framecapture.cpp framecapture.hpp \
+	gpiomotors.cpp gpiomotors.hpp line.hpp line.cpp \
+	linefollowerapp.cpp linefollowerapp.hpp linetracker.hpp \
+	log.cpp log.hpp main.cpp motors.cpp motors.hpp options.cpp \
+	options.hpp pilot.cpp pilot.hpp realcamera.cpp realcamera.hpp \
+	robotanicuslinetracker.cpp robotanicuslinetracker.hpp \
+	utilities.cpp utilities.hpp $(am__append_1)
 follow_CFLAGS = ${opencv_CFLAGS} $(am__append_2)
 follow_LDADD = -lrfsgpio -lpthread ${opencv_LIBS} $(am__append_3)
+follow_calibrate_SOURCES = cameraparameters.hpp cameraparameters.cpp \
+    followcalibrate.cpp utilities.hpp utilities.cpp
+
+follow_calibrate_CFLAGS = ${opencv_CFLAGS}
+follow_calibrate_LDADD = ${opencv_LIBS}
 python_PYTHON = follow.py
 dist_bin_SCRIPTS = follow-command $(am__append_4)
 all: all-am
@@ -471,6 +481,10 @@ clean-binPROGRAMS:
 follow$(EXEEXT): $(follow_OBJECTS) $(follow_DEPENDENCIES) $(EXTRA_follow_DEPENDENCIES) 
 	@rm -f follow$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(follow_OBJECTS) $(follow_LDADD) $(LIBS)
+
+follow-calibrate$(EXEEXT): $(follow_calibrate_OBJECTS) $(follow_calibrate_DEPENDENCIES) $(EXTRA_follow_calibrate_DEPENDENCIES) 
+	@rm -f follow-calibrate$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(follow_calibrate_OBJECTS) $(follow_calibrate_LDADD) $(LIBS)
 install-dist_binSCRIPTS: $(dist_bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_bin_SCRIPTS)'; test -n "$(bindir)" || list=; \
@@ -515,12 +529,14 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/acrossroadsegment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/camera.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cameraparameters.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dashedline1segment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dashedline2segment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/doubleturnleftsegment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/doubleturnrightsegment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/doubleturnsegment.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/followcalibrate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/framecapture.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gpiomotors.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line.Po@am__quote@

@@ -16,7 +16,7 @@
 
 #ifdef WITH_GTK
 
-#define LINE_SCALE  4
+#define LINE_SCALE  10
 #define X_TO_SCR(x) (x * LINE_SCALE + frame_width/2)
 #define Y_TO_SCR(y) (frame_height - y * LINE_SCALE)
 #define LINE_COLOR  Scalar(0, 255, 255)
@@ -33,7 +33,7 @@ const char* LineFollowerApp::options_default[] = {
     "Motors", "real",
     "RealMotorsType", "gpio",
     "LineTracker", "robotanicus",
-    "HorizontalScanlineOffset", "50",
+    "HorizontalScanlineOffset", "150",
     "NumScanCircles", "5",
     "ScanCircleRadius", "1.5",
     "Port", "10101",
@@ -164,6 +164,13 @@ LineFollowerApp::draw_line(Mat& frame)
         const line_point_t& p = line.get_point(i);
         circle(frame, Point(X_TO_SCR(p.wx), Y_TO_SCR(p.wy)), 3, LINE_COLOR, 2);
     }
+    // Draw a line in the middle of the screen
+    cv::line(frame, Point(frame.cols/2, 0), Point(frame.cols/2, frame.rows),
+        Scalar(0, 255, 0));
+    // Draw a line fromt the camera to the target point of the line
+    const line_point_t& p = line.get_point(0);
+    cv::line(frame, Point(X_TO_SCR(p.wx), 0),
+        Point(X_TO_SCR(p.wx), frame.rows), Scalar(0, 255, 255));
 }
 
 #endif
